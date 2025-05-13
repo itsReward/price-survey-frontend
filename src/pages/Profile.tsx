@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from 'react-query'
+import { useMutation, useQueryClient } from 'react-query'
 import { motion } from 'framer-motion'
 import {
     User,
@@ -10,7 +10,6 @@ import {
     Save,
     X,
     Key,
-    UserCircle,
     Building
 } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
@@ -180,7 +179,7 @@ const Profile: React.FC = () => {
                                 <div className="text-center space-y-4">
                                     <div className="flex justify-center">
                                         <div className="w-24 h-24 bg-emerald-100 dark:bg-emerald-900 rounded-full flex items-center justify-center">
-                                            <UserCircle className="w-16 h-16 text-emerald-600 dark:text-emerald-400" />
+                                            <User className="w-16 h-16 text-emerald-600 dark:text-emerald-400" />
                                         </div>
                                     </div>
                                     <div>

@@ -32,8 +32,10 @@ const PriceEntryForm: React.FC<PriceEntryFormProps> = ({
     const [errors, setErrors] = useState<{[key: string]: string}>({})
 
     // Fetch stores and products
-    const { data: stores } = useQuery('stores', storeService.getStores)
-    const { data: products } = useQuery('products', productService.getProducts)
+
+    const { data: stores, isLoading: storesLoading } = useQuery('stores', storeService.getStores)
+    const { data: products, isLoading: productsLoading } = useQuery('products', productService.getProducts)
+
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target
@@ -52,10 +54,10 @@ const PriceEntryForm: React.FC<PriceEntryFormProps> = ({
     const validateForm = () => {
         const newErrors: {[key: string]: string} = {}
 
-        if (!formData.storeId) newErrors['storeId'] = 'Store is required'
-        if (!formData.productId) newErrors['productId'] = 'Product is required'
-        if (!formData.price || formData.price <= 0) newErrors['price'] = 'Valid price is required'
-        if (!formData.quantity || formData.quantity <= 0) newErrors['quantity'] = 'Valid quantity is required'
+        if (!formData.storeId || formData.storeId === 0) newErrors['storeId'] = 'Please select a store'
+        if (!formData.productId || formData.productId === 0) newErrors['productId'] = 'Please select a product'
+        if (!formData.price || formData.price <= 0) newErrors['price'] = 'Please enter a valid price'
+        if (!formData.quantity || formData.quantity <= 0) newErrors['quantity'] = 'Please enter a valid quantity'
 
         setErrors(newErrors)
         return Object.keys(newErrors).length === 0
@@ -105,7 +107,7 @@ const PriceEntryForm: React.FC<PriceEntryFormProps> = ({
                             {/* Store Selection */}
                             <div>
                                 <label htmlFor="storeId" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Store
+                                    Store *
                                 </label>
                                 <div className="relative">
                                     <Store className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -114,11 +116,14 @@ const PriceEntryForm: React.FC<PriceEntryFormProps> = ({
                                         name="storeId"
                                         value={formData.storeId}
                                         onChange={handleInputChange}
+                                        disabled={storesLoading}
                                         className={`w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
                                             errors['storeId'] ? 'border-red-500' : 'border-gray-300'
                                         }`}
                                     >
-                                        <option value="">Select a store</option>
+                                        <option value={0}>
+                                            {storesLoading ? 'Loading stores...' : 'Select a store'}
+                                        </option>
                                         {stores?.map((store) => (
                                             <option key={store.id} value={store.id}>
                                                 {store.name} - {store.city}
@@ -134,7 +139,7 @@ const PriceEntryForm: React.FC<PriceEntryFormProps> = ({
                             {/* Product Selection */}
                             <div>
                                 <label htmlFor="productId" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Product
+                                    Product *
                                 </label>
                                 <div className="relative">
                                     <Package className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -147,7 +152,7 @@ const PriceEntryForm: React.FC<PriceEntryFormProps> = ({
                                             errors['productId'] ? 'border-red-500' : 'border-gray-300'
                                         }`}
                                     >
-                                        <option value="">Select a product</option>
+                                        <option value={0}>Select a product</option>
                                         {products?.map((product) => (
                                             <option key={product.id} value={product.id}>
                                                 {product.name} ({product.volumeMl}ml) - {product.category}
@@ -164,7 +169,7 @@ const PriceEntryForm: React.FC<PriceEntryFormProps> = ({
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label htmlFor="price" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                        Price
+                                        Price *
                                     </label>
                                     <div className="relative">
                                         <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -174,7 +179,7 @@ const PriceEntryForm: React.FC<PriceEntryFormProps> = ({
                                             name="price"
                                             step="0.01"
                                             min="0"
-                                            value={formData.price}
+                                            value={formData.price || ''}
                                             onChange={handleInputChange}
                                             className={`w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
                                                 errors['price'] ? 'border-red-500' : 'border-gray-300'
@@ -189,7 +194,7 @@ const PriceEntryForm: React.FC<PriceEntryFormProps> = ({
 
                                 <div>
                                     <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                        Quantity
+                                        Quantity *
                                     </label>
                                     <div className="relative">
                                         <Hash className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -198,7 +203,7 @@ const PriceEntryForm: React.FC<PriceEntryFormProps> = ({
                                             id="quantity"
                                             name="quantity"
                                             min="1"
-                                            value={formData.quantity}
+                                            value={formData.quantity || ''}
                                             onChange={handleInputChange}
                                             className={`w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
                                                 errors['quantity'] ? 'border-red-500' : 'border-gray-300'
