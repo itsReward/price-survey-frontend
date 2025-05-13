@@ -7,7 +7,6 @@ import TypewriterText from '@/components/animations/TypewriterText'
 import FadeIn from '@/components/animations/FadeIn'
 import Button from '@/components/ui/Button'
 import Card, { CardContent, CardHeader } from '@/components/ui/Card'
-import toast from 'react-hot-toast'
 
 const Login: React.FC = () => {
     const [formData, setFormData] = useState({

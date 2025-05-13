@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { X, Save, Package, Tag, Beaker, FileText, Hash } from 'lucide-react'
 import { useQuery } from 'react-query'
@@ -48,9 +48,9 @@ const ProductForm: React.FC<ProductFormProps> = ({
     const validateForm = () => {
         const newErrors: {[key: string]: string} = {}
 
-        if (!formData.name.trim()) newErrors.name = 'Product name is required'
-        if (!formData.category.trim()) newErrors.category = 'Category is required'
-        if (!formData.volumeMl || formData.volumeMl <= 0) newErrors.volumeMl = 'Valid volume is required'
+        if (!formData.name.trim()) newErrors['name'] = 'Product name is required'
+        if (!formData.category.trim()) newErrors['category'] = 'Category is required'
+        if (!formData.volumeMl || formData.volumeMl <= 0) newErrors['volumeMl'] = 'Valid volume is required'
 
         setErrors(newErrors)
         return Object.keys(newErrors).length === 0
@@ -140,18 +140,18 @@ const ProductForm: React.FC<ProductFormProps> = ({
                                         value={formData.name}
                                         onChange={handleInputChange}
                                         className={`w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                                            errors.name ? 'border-red-500' : 'border-gray-300'
+                                            errors['name'] ? 'border-red-500' : 'border-gray-300'
                                         }`}
                                         placeholder="Enter product name"
                                     />
                                 </div>
-                                {errors.name && (
+                                {errors['name'] && (
                                     <motion.p
                                         initial={{ opacity: 0, y: -10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         className="mt-1 text-sm text-red-600 dark:text-red-400"
                                     >
-                                        {errors.name}
+                                        {errors['name']}
                                     </motion.p>
                                 )}
                             </div>
@@ -171,7 +171,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                                             value={formData.category}
                                             onChange={handleInputChange}
                                             className={`w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                                                errors.category ? 'border-red-500' : 'border-gray-300'
+                                                errors['category'] ? 'border-red-500' : 'border-gray-300'
                                             }`}
                                         >
                                             <option value="">Select category</option>
@@ -185,13 +185,13 @@ const ProductForm: React.FC<ProductFormProps> = ({
                                             ))}
                                         </select>
                                     </div>
-                                    {errors.category && (
+                                    {errors['category'] && (
                                         <motion.p
                                             initial={{ opacity: 0, y: -10 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             className="mt-1 text-sm text-red-600 dark:text-red-400"
                                         >
-                                            {errors.category}
+                                            {errors['category']}
                                         </motion.p>
                                     )}
                                 </div>
@@ -232,7 +232,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                                             value={formData.volumeMl}
                                             onChange={handleInputChange}
                                             className={`w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                                                errors.volumeMl ? 'border-red-500' : 'border-gray-300'
+                                                errors['volumeMl'] ? 'border-red-500' : 'border-gray-300'
                                             }`}
                                             placeholder="Enter volume in ml"
                                         />
@@ -253,13 +253,13 @@ const ProductForm: React.FC<ProductFormProps> = ({
                                         ))}
                                     </div>
                                 </div>
-                                {errors.volumeMl && (
+                                {errors['volumeMl'] && (
                                     <motion.p
                                         initial={{ opacity: 0, y: -10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         className="mt-1 text-sm text-red-600 dark:text-red-400"
                                     >
-                                        {errors.volumeMl}
+                                        {errors['volumeMl']}
                                     </motion.p>
                                 )}
                             </div>

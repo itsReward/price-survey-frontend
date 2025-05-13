@@ -34,15 +34,15 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, isLoading, error }) => 
         const newErrors: {[key: string]: string} = {}
 
         if (!formData.email) {
-            newErrors.email = 'Email is required'
+            newErrors['email'] = 'Email is required'
         } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-            newErrors.email = 'Please enter a valid email'
+            newErrors['email'] = 'Please enter a valid email'
         }
 
         if (!formData.password) {
-            newErrors.password = 'Password is required'
+            newErrors['password'] = 'Password is required'
         } else if (formData.password.length < 6) {
-            newErrors.password = 'Password must be at least 6 characters'
+            newErrors['password'] = 'Password must be at least 6 characters'
         }
 
         setErrors(newErrors)
@@ -94,18 +94,18 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, isLoading, error }) => 
                                 value={formData.email}
                                 onChange={handleInputChange}
                                 className={`appearance-none rounded-lg relative block w-full pl-10 pr-3 py-3 border ${
-                                    errors.email ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                                    errors['email'] ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                                 } placeholder-gray-500 text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 focus:z-10 sm:text-sm transition-colors duration-200`}
                                 placeholder="Email address"
                             />
                         </div>
-                        {errors.email && (
+                        {errors['email'] && (
                             <motion.p
                                 initial={{ opacity: 0, y: -10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 className="mt-1 text-sm text-red-600 dark:text-red-400"
                             >
-                                {errors.email}
+                                {errors['email']}
                             </motion.p>
                         )}
                     </div>
@@ -128,7 +128,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, isLoading, error }) => 
                                 value={formData.password}
                                 onChange={handleInputChange}
                                 className={`appearance-none rounded-lg relative block w-full pl-10 pr-10 py-3 border ${
-                                    errors.password ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                                    errors['password'] ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                                 } placeholder-gray-500 text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 focus:z-10 sm:text-sm transition-colors duration-200`}
                                 placeholder="Password"
                             />
@@ -144,13 +144,13 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, isLoading, error }) => 
                                 )}
                             </button>
                         </div>
-                        {errors.password && (
+                        {errors['password'] && (
                             <motion.p
                                 initial={{ opacity: 0, y: -10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 className="mt-1 text-sm text-red-600 dark:text-red-400"
                             >
-                                {errors.password}
+                                {errors['password']}
                             </motion.p>
                         )}
                     </div>

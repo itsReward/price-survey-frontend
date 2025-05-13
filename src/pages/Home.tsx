@@ -9,7 +9,7 @@ import Card, { CardContent } from '@/components/ui/Card'
 import { useAuth } from '@/context/AuthContext'
 
 const Home: React.FC = () => {
-    const { isAuthenticated, user } = useAuth()
+    const { isAuthenticated} = useAuth()
     const [showGreeting, setShowGreeting] = useState(false)
 
     const greetings = [

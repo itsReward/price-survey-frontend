@@ -46,21 +46,21 @@ const StoreForm: React.FC<StoreFormProps> = ({
     const validateForm = () => {
         const newErrors: {[key: string]: string} = {}
 
-        if (!formData.name.trim()) newErrors.name = 'Store name is required'
-        if (!formData.address.trim()) newErrors.address = 'Address is required'
-        if (!formData.city.trim()) newErrors.city = 'City is required'
-        if (!formData.region.trim()) newErrors.region = 'Region is required'
-        if (!formData.country.trim()) newErrors.country = 'Country is required'
+        if (!formData.name.trim()) newErrors['name'] = 'Store name is required'
+        if (!formData.address.trim()) newErrors['address'] = 'Address is required'
+        if (!formData.city.trim()) newErrors['city'] = 'City is required'
+        if (!formData.region.trim()) newErrors['region'] = 'Region is required'
+        if (!formData.country.trim()) newErrors['country'] = 'Country is required'
 
         // Validate coordinates if provided
         if (formData.latitude !== undefined) {
             if (formData.latitude < -90 || formData.latitude > 90) {
-                newErrors.latitude = 'Latitude must be between -90 and 90'
+                newErrors['latitude'] = 'Latitude must be between -90 and 90'
             }
         }
         if (formData.longitude !== undefined) {
             if (formData.longitude < -180 || formData.longitude > 180) {
-                newErrors.longitude = 'Longitude must be between -180 and 180'
+                newErrors['longitude'] = 'Longitude must be between -180 and 180'
             }
         }
 
@@ -141,18 +141,18 @@ const StoreForm: React.FC<StoreFormProps> = ({
                                         value={formData.name}
                                         onChange={handleInputChange}
                                         className={`w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                                            errors.name ? 'border-red-500' : 'border-gray-300'
+                                            errors['name'] ? 'border-red-500' : 'border-gray-300'
                                         }`}
                                         placeholder="Enter store name"
                                     />
                                 </div>
-                                {errors.name && (
+                                {errors['name'] && (
                                     <motion.p
                                         initial={{ opacity: 0, y: -10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         className="mt-1 text-sm text-red-600 dark:text-red-400"
                                     >
-                                        {errors.name}
+                                        {errors['name']}
                                     </motion.p>
                                 )}
                             </div>
@@ -171,18 +171,18 @@ const StoreForm: React.FC<StoreFormProps> = ({
                                         value={formData.address}
                                         onChange={handleInputChange}
                                         className={`w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                                            errors.address ? 'border-red-500' : 'border-gray-300'
+                                            errors['address'] ? 'border-red-500' : 'border-gray-300'
                                         }`}
                                         placeholder="Enter store address"
                                     />
                                 </div>
-                                {errors.address && (
+                                {errors['address'] && (
                                     <motion.p
                                         initial={{ opacity: 0, y: -10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         className="mt-1 text-sm text-red-600 dark:text-red-400"
                                     >
-                                        {errors.address}
+                                        {errors['address']}
                                     </motion.p>
                                 )}
                             </div>
@@ -200,17 +200,17 @@ const StoreForm: React.FC<StoreFormProps> = ({
                                         value={formData.city}
                                         onChange={handleInputChange}
                                         className={`w-full px-3 py-2 border rounded-lg focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                                            errors.city ? 'border-red-500' : 'border-gray-300'
+                                            errors['city'] ? 'border-red-500' : 'border-gray-300'
                                         }`}
                                         placeholder="City"
                                     />
-                                    {errors.city && (
+                                    {errors['city'] && (
                                         <motion.p
                                             initial={{ opacity: 0, y: -10 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             className="mt-1 text-sm text-red-600 dark:text-red-400"
                                         >
-                                            {errors.city}
+                                            {errors['city']}
                                         </motion.p>
                                     )}
                                 </div>
@@ -226,17 +226,17 @@ const StoreForm: React.FC<StoreFormProps> = ({
                                         value={formData.region}
                                         onChange={handleInputChange}
                                         className={`w-full px-3 py-2 border rounded-lg focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                                            errors.region ? 'border-red-500' : 'border-gray-300'
+                                            errors['region'] ? 'border-red-500' : 'border-gray-300'
                                         }`}
                                         placeholder="Region"
                                     />
-                                    {errors.region && (
+                                    {errors['region'] && (
                                         <motion.p
                                             initial={{ opacity: 0, y: -10 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             className="mt-1 text-sm text-red-600 dark:text-red-400"
                                         >
-                                            {errors.region}
+                                            {errors['region']}
                                         </motion.p>
                                     )}
                                 </div>
@@ -256,18 +256,18 @@ const StoreForm: React.FC<StoreFormProps> = ({
                                         value={formData.country}
                                         onChange={handleInputChange}
                                         className={`w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                                            errors.country ? 'border-red-500' : 'border-gray-300'
+                                            errors['country'] ? 'border-red-500' : 'border-gray-300'
                                         }`}
                                         placeholder="Enter country"
                                     />
                                 </div>
-                                {errors.country && (
+                                {errors['country'] && (
                                     <motion.p
                                         initial={{ opacity: 0, y: -10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         className="mt-1 text-sm text-red-600 dark:text-red-400"
                                     >
-                                        {errors.country}
+                                        {errors['country']}
                                     </motion.p>
                                 )}
                             </div>
@@ -303,18 +303,18 @@ const StoreForm: React.FC<StoreFormProps> = ({
                                                 value={formData.latitude || ''}
                                                 onChange={handleInputChange}
                                                 className={`w-full pl-9 pr-3 py-2 border rounded-lg focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                                                    errors.latitude ? 'border-red-500' : 'border-gray-300'
+                                                    errors['latitude'] ? 'border-red-500' : 'border-gray-300'
                                                 }`}
                                                 placeholder="-90 to 90"
                                             />
                                         </div>
-                                        {errors.latitude && (
+                                        {errors['latitude'] && (
                                             <motion.p
                                                 initial={{ opacity: 0, y: -10 }}
                                                 animate={{ opacity: 1, y: 0 }}
                                                 className="mt-1 text-xs text-red-600 dark:text-red-400"
                                             >
-                                                {errors.latitude}
+                                                {errors['latitude']}
                                             </motion.p>
                                         )}
                                     </div>
@@ -333,18 +333,18 @@ const StoreForm: React.FC<StoreFormProps> = ({
                                                 value={formData.longitude || ''}
                                                 onChange={handleInputChange}
                                                 className={`w-full pl-9 pr-3 py-2 border rounded-lg focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                                                    errors.longitude ? 'border-red-500' : 'border-gray-300'
+                                                    errors['longitude'] ? 'border-red-500' : 'border-gray-300'
                                                 }`}
                                                 placeholder="-180 to 180"
                                             />
                                         </div>
-                                        {errors.longitude && (
+                                        {errors['longitude'] && (
                                             <motion.p
                                                 initial={{ opacity: 0, y: -10 }}
                                                 animate={{ opacity: 1, y: 0 }}
                                                 className="mt-1 text-xs text-red-600 dark:text-red-400"
                                             >
-                                                {errors.longitude}
+                                                {errors['longitude']}
                                             </motion.p>
                                         )}
                                     </div>

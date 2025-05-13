@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, Search, Filter, Edit, Trash2, Package, Store as StoreIcon } from 'lucide-react'
 import FadeIn from '@/components/animations/FadeIn'
 import Button from '@/components/ui/Button'
-import Card, { CardContent, CardHeader } from '@/components/ui/Card'
+import Card, { CardContent } from '@/components/ui/Card'
 import Skeleton from '@/components/ui/Skeleton'
 import PriceEntryForm from '@/components/forms/PriceEntryForm'
 import { priceEntryService } from '@/services/priceEntry'
@@ -14,12 +14,12 @@ import toast from 'react-hot-toast'
 const PriceEntries: React.FC = () => {
     const [isFormOpen, setIsFormOpen] = useState(false)
     const [selectedEntry, setSelectedEntry] = useState<PriceEntry | null>(null)
-    const [filters, setFilters] = useState<PriceEntryFilters>({})
+    const [filters] = useState<PriceEntryFilters>({})
     const [searchTerm, setSearchTerm] = useState('')
 
     const queryClient = useQueryClient()
 
-    const { data: priceEntries, isLoading, isError } = useQuery(
+    const { data: priceEntries, isLoading} = useQuery(
         ['priceEntries', filters],
         () => priceEntryService.getPriceEntries(filters),
         {

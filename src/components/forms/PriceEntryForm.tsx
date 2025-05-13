@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { X, Save, Package, Store, DollarSign, Hash, FileText } from 'lucide-react'
 import { useQuery } from 'react-query'
@@ -7,7 +7,6 @@ import Card, { CardContent, CardHeader } from '@/components/ui/Card'
 import { PriceEntry, PriceEntryRequest } from '@/types/priceEntry'
 import { storeService } from '@/services/store'
 import { productService } from '@/services/product'
-import toast from 'react-hot-toast'
 
 interface PriceEntryFormProps {
     entry?: PriceEntry | null
@@ -53,10 +52,10 @@ const PriceEntryForm: React.FC<PriceEntryFormProps> = ({
     const validateForm = () => {
         const newErrors: {[key: string]: string} = {}
 
-        if (!formData.storeId) newErrors.storeId = 'Store is required'
-        if (!formData.productId) newErrors.productId = 'Product is required'
-        if (!formData.price || formData.price <= 0) newErrors.price = 'Valid price is required'
-        if (!formData.quantity || formData.quantity <= 0) newErrors.quantity = 'Valid quantity is required'
+        if (!formData.storeId) newErrors['storeId'] = 'Store is required'
+        if (!formData.productId) newErrors['productId'] = 'Product is required'
+        if (!formData.price || formData.price <= 0) newErrors['price'] = 'Valid price is required'
+        if (!formData.quantity || formData.quantity <= 0) newErrors['quantity'] = 'Valid quantity is required'
 
         setErrors(newErrors)
         return Object.keys(newErrors).length === 0
@@ -116,7 +115,7 @@ const PriceEntryForm: React.FC<PriceEntryFormProps> = ({
                                         value={formData.storeId}
                                         onChange={handleInputChange}
                                         className={`w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                                            errors.storeId ? 'border-red-500' : 'border-gray-300'
+                                            errors['storeId'] ? 'border-red-500' : 'border-gray-300'
                                         }`}
                                     >
                                         <option value="">Select a store</option>
@@ -127,8 +126,8 @@ const PriceEntryForm: React.FC<PriceEntryFormProps> = ({
                                         ))}
                                     </select>
                                 </div>
-                                {errors.storeId && (
-                                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.storeId}</p>
+                                {errors['storeId'] && (
+                                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors['storeId']}</p>
                                 )}
                             </div>
 
@@ -145,7 +144,7 @@ const PriceEntryForm: React.FC<PriceEntryFormProps> = ({
                                         value={formData.productId}
                                         onChange={handleInputChange}
                                         className={`w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                                            errors.productId ? 'border-red-500' : 'border-gray-300'
+                                            errors['productId'] ? 'border-red-500' : 'border-gray-300'
                                         }`}
                                     >
                                         <option value="">Select a product</option>
@@ -156,8 +155,8 @@ const PriceEntryForm: React.FC<PriceEntryFormProps> = ({
                                         ))}
                                     </select>
                                 </div>
-                                {errors.productId && (
-                                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.productId}</p>
+                                {errors['productId'] && (
+                                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors['productId']}</p>
                                 )}
                             </div>
 
@@ -178,13 +177,13 @@ const PriceEntryForm: React.FC<PriceEntryFormProps> = ({
                                             value={formData.price}
                                             onChange={handleInputChange}
                                             className={`w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                                                errors.price ? 'border-red-500' : 'border-gray-300'
+                                                errors['price'] ? 'border-red-500' : 'border-gray-300'
                                             }`}
                                             placeholder="0.00"
                                         />
                                     </div>
-                                    {errors.price && (
-                                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.price}</p>
+                                    {errors['price'] && (
+                                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors['price']}</p>
                                     )}
                                 </div>
 
@@ -202,13 +201,13 @@ const PriceEntryForm: React.FC<PriceEntryFormProps> = ({
                                             value={formData.quantity}
                                             onChange={handleInputChange}
                                             className={`w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                                                errors.quantity ? 'border-red-500' : 'border-gray-300'
+                                                errors['quantity'] ? 'border-red-500' : 'border-gray-300'
                                             }`}
                                             placeholder="1"
                                         />
                                     </div>
-                                    {errors.quantity && (
-                                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.quantity}</p>
+                                    {errors['quantity'] && (
+                                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors['quantity']}</p>
                                     )}
                                 </div>
                             </div>
