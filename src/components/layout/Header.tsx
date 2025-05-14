@@ -13,7 +13,8 @@ import {
     Moon,
     Sun,
     LogOut,
-    Shield
+    Shield,
+    Users
 } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { useTheme } from '@/context/ThemeContext'
@@ -33,6 +34,10 @@ const Header: React.FC = () => {
             { name: 'Products', href: '/products', icon: Package },
             { name: 'Stores', href: '/stores', icon: Store },
             { name: 'Profile', href: '/profile', icon: User },
+            // Admin-only routes
+            ...(user?.role === 'ADMIN' ? [
+                { name: 'User Management', href: '/admin/users', icon: Users }
+            ] : [])
         ] : [])
     ]
 
@@ -114,11 +119,18 @@ const Header: React.FC = () => {
                                 </Button>
                             </div>
                         ) : (
-                            <Link to="/login">
-                                <Button variant="primary" size="sm">
-                                    Sign In
-                                </Button>
-                            </Link>
+                            <div className="flex items-center space-x-3">
+                                <Link to="/login">
+                                    <Button variant="outline" size="sm">
+                                        Sign In
+                                    </Button>
+                                </Link>
+                                <Link to="/register">
+                                    <Button variant="primary" size="sm">
+                                        Register
+                                    </Button>
+                                </Link>
+                            </div>
                         )}
 
                         {/* Mobile Menu Button */}
@@ -160,7 +172,7 @@ const Header: React.FC = () => {
                                 </Link>
                             ))}
 
-                            {isAuthenticated && (
+                            {isAuthenticated ? (
                                 <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
                                     <div className="flex items-center space-x-2 px-3 py-2">
                                         {user?.role === 'ADMIN' && (
@@ -182,6 +194,27 @@ const Header: React.FC = () => {
                                     >
                                         Logout
                                     </Button>
+                                </div>
+                            ) : (
+                                <div className="pt-2 border-t border-gray-200 dark:border-gray-700 space-y-2">
+                                    <Link
+                                        to="/login"
+                                        onClick={() => setIsMenuOpen(false)}
+                                        className="block px-3 py-2"
+                                    >
+                                        <Button variant="outline" size="sm" className="w-full">
+                                            Sign In
+                                        </Button>
+                                    </Link>
+                                    <Link
+                                        to="/register"
+                                        onClick={() => setIsMenuOpen(false)}
+                                        className="block px-3 py-2"
+                                    >
+                                        <Button variant="primary" size="sm" className="w-full">
+                                            Register
+                                        </Button>
+                                    </Link>
                                 </div>
                             )}
                         </div>

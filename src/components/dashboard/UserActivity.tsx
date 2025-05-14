@@ -2,10 +2,10 @@ import React from 'react'
 import { motion } from 'framer-motion'
 import { Users, Calendar, BarChart3 } from 'lucide-react'
 import Card, { CardContent, CardHeader } from '@/components/ui/Card'
-import { UserActivity } from '@/types/dashboard'
+import { UserActivity as UserActivityType } from '@/types/dashboard'
 
 interface UserActivityProps {
-    users: UserActivity[]
+    users: UserActivityType[]
     isLoading?: boolean
 }
 

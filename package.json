@@ -22,7 +22,8 @@
     "zustand": "^4.3.6",
     "date-fns": "^2.29.3",
     "clsx": "^1.2.1",
-    "tailwind-merge": "^1.10.0"
+    "tailwind-merge": "^1.10.0",
+    "@react-oauth/google": "^0.11.1"
   },
   "devDependencies": {
     "@types/react": "^18.0.28",

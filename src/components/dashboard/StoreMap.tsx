@@ -38,33 +38,28 @@ const StoreMap: React.FC<StoreMapProps> = ({
 
     // Filter stores with valid coordinates
     const validStores = stores?.filter(store =>
-        store.latitude && store.longitude
+        store.latitude !== null &&
+        store.longitude !== null &&
+        !isNaN(store.latitude) &&
+        !isNaN(store.longitude)
     ) || []
 
-    // Generate Google Maps embed URL with markers
-    const generateMapUrl = () => {
-        if (!validStores.length) return ''
+    console.log('ValidStores:', validStores) // Debug log
 
-        // Calculate center based on store locations
-        const avgLat = validStores.reduce((sum, store) => sum + store.latitude, 0) / validStores.length
-        const avgLng = validStores.reduce((sum, store) => sum + store.longitude, 0) / validStores.length
-
-        // Create markers for each store
-        const markers = validStores.map(store => {
-            const color = store.isActive ? 'green' : 'red'
-            return `${encodeURIComponent(`${store.name} (${store.city})`)};${store.latitude},${store.longitude};${color}`
-        }).join('|')
-
-        return `https://maps.google.com/maps/api/staticmap?center=${avgLat},${avgLng}&zoom=10&size=800x400&scale=2&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY || ''}&markers=${markers}&map_style=feature:poi|visibility:off`
-    }
-
-    const mapUrl = generateMapUrl()
-
-    // Alternative: Create a simple custom map visualization
+    // Create a simple custom map visualization
     const renderCustomMap = () => {
-        if (!validStores.length) return <div>No stores with valid coordinates found</div>
+        if (!validStores.length) {
+            return (
+                <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
+                    <div className="text-center">
+                        <MapPin className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+                        <p>No stores with valid coordinates found</p>
+                    </div>
+                </div>
+            )
+        }
 
-        // Calculate bounds
+        // Calculate bounds with some padding
         const lats = validStores.map(s => s.latitude)
         const lngs = validStores.map(s => s.longitude)
         const minLat = Math.min(...lats)
@@ -72,11 +67,32 @@ const StoreMap: React.FC<StoreMapProps> = ({
         const minLng = Math.min(...lngs)
         const maxLng = Math.max(...lngs)
 
-        // Normalize coordinates for display
-        const normalizeCoords = (lat: number, lng: number) => ({
-            x: ((lng - minLng) / (maxLng - minLng)) * 100,
-            y: (1 - (lat - minLat) / (maxLat - minLat)) * 100
-        })
+        // Add padding to bounds (10% of range)
+        const latRange = maxLat - minLat
+        const lngRange = maxLng - minLng
+        const padding = 0.1
+
+        const paddedMinLat = minLat - (latRange * padding)
+        const paddedMaxLat = maxLat + (latRange * padding)
+        const paddedMinLng = minLng - (lngRange * padding)
+        const paddedMaxLng = maxLng + (lngRange * padding)
+
+        // Normalize coordinates for display (0-100%)
+        const normalizeCoords = (lat: number, lng: number) => {
+            // Handle single point case
+            if (paddedMaxLat === paddedMinLat && paddedMaxLng === paddedMinLng) {
+                return { x: 50, y: 50 }
+            }
+
+            const x = paddedMaxLng === paddedMinLng ? 50 :
+                ((lng - paddedMinLng) / (paddedMaxLng - paddedMinLng)) * 100
+            const y = paddedMaxLat === paddedMinLat ? 50 :
+                (1 - (lat - paddedMinLat) / (paddedMaxLat - paddedMinLat)) * 100
+
+            return { x: Math.max(5, Math.min(95, x)), y: Math.max(5, Math.min(95, y)) }
+        }
+
+        console.log('Bounds:', { minLat, maxLat, minLng, maxLng }) // Debug log
 
         return (
             <div className="relative w-full h-full bg-gradient-to-br from-green-50 to-emerald-50 dark:from-gray-800 dark:to-gray-700 overflow-hidden rounded-lg">
@@ -90,27 +106,47 @@ const StoreMap: React.FC<StoreMapProps> = ({
                     <rect width="100%" height="100%" fill="url(#grid)" />
                 </svg>
 
+                {/* Latitude labels */}
+                <div className="absolute left-2 top-4 text-xs text-gray-500 dark:text-gray-400">
+                    {paddedMaxLat.toFixed(2)}°
+                </div>
+                <div className="absolute left-2 bottom-4 text-xs text-gray-500 dark:text-gray-400">
+                    {paddedMinLat.toFixed(2)}°
+                </div>
+
+                {/* Longitude labels */}
+                <div className="absolute top-2 left-4 text-xs text-gray-500 dark:text-gray-400">
+                    {paddedMinLng.toFixed(2)}°
+                </div>
+                <div className="absolute top-2 right-4 text-xs text-gray-500 dark:text-gray-400">
+                    {paddedMaxLng.toFixed(2)}°
+                </div>
+
                 {/* Store markers */}
                 {validStores.map((store, index) => {
                     const { x, y } = normalizeCoords(store.latitude, store.longitude)
+
+                    console.log(`Store ${store.name}: lat=${store.latitude}, lng=${store.longitude}, x=${x}%, y=${y}%`) // Debug log
+
                     return (
                         <motion.div
                             key={store.id}
                             initial={{ opacity: 0, scale: 0 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ delay: index * 0.1 }}
-                            className="absolute transform -translate-x-1/2 -translate-y-full cursor-pointer"
+                            className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer"
                             style={{ left: `${x}%`, top: `${y}%` }}
                             onClick={() => setSelectedStore(store)}
                             onMouseEnter={() => setSelectedStore(store)}
+                            onMouseLeave={() => setSelectedStore(null)}
                         >
                             <motion.div
                                 whileHover={{ scale: 1.2 }}
                                 whileTap={{ scale: 0.9 }}
                                 className={`relative z-10 ${store.isActive ? 'text-green-500' : 'text-red-500'}`}
                             >
-                                <MapPin className="w-8 h-8 drop-shadow-lg" />
-                                <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full ${store.isActive ? 'bg-green-500' : 'bg-red-500'}`} />
+                                <MapPin className="w-8 h-8 drop-shadow-lg" fill="currentColor" />
+                                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-white" />
                             </motion.div>
                         </motion.div>
                     )
@@ -121,7 +157,7 @@ const StoreMap: React.FC<StoreMapProps> = ({
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="absolute bottom-4 left-4 right-4 bg-white dark:bg-gray-800 rounded-lg shadow-xl p-4 z-20"
+                        className="absolute bottom-4 left-4 right-4 bg-white dark:bg-gray-800 rounded-lg shadow-xl p-4 z-20 max-w-sm mx-auto"
                     >
                         <div className="flex items-start space-x-3">
                             <div className={`flex-shrink-0 p-2 rounded-lg ${selectedStore.isActive ? 'bg-green-100 dark:bg-green-900' : 'bg-red-100 dark:bg-red-900'}`}>
@@ -137,6 +173,9 @@ const StoreMap: React.FC<StoreMapProps> = ({
                                 <p className="text-sm text-gray-500 dark:text-gray-500">
                                     {selectedStore.city}
                                 </p>
+                                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                                    {selectedStore.latitude.toFixed(4)}, {selectedStore.longitude.toFixed(4)}
+                                </p>
                                 <p className={`text-xs font-medium mt-1 ${selectedStore.isActive ? 'text-green-600' : 'text-red-600'}`}>
                                     {selectedStore.isActive ? 'Active' : 'Inactive'}
                                 </p>
@@ -150,11 +189,11 @@ const StoreMap: React.FC<StoreMapProps> = ({
                     <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Legend</h4>
                     <div className="space-y-2">
                         <div className="flex items-center space-x-2">
-                            <MapPin className="w-4 h-4 text-green-500" />
+                            <MapPin className="w-4 h-4 text-green-500" fill="currentColor" />
                             <span className="text-xs text-gray-600 dark:text-gray-400">Active Store</span>
                         </div>
                         <div className="flex items-center space-x-2">
-                            <MapPin className="w-4 h-4 text-red-500" />
+                            <MapPin className="w-4 h-4 text-red-500" fill="currentColor" />
                             <span className="text-xs text-gray-600 dark:text-gray-400">Inactive Store</span>
                         </div>
                     </div>
@@ -163,6 +202,13 @@ const StoreMap: React.FC<StoreMapProps> = ({
                             {validStores.length} stores shown
                         </p>
                     </div>
+                </div>
+
+                {/* Zoom level indicator */}
+                <div className="absolute bottom-4 right-4 bg-white dark:bg-gray-800 rounded-lg p-2 shadow">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                        Custom Map View
+                    </p>
                 </div>
             </div>
         )
@@ -175,6 +221,7 @@ const StoreMap: React.FC<StoreMapProps> = ({
                     <div className="text-center py-8">
                         <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                         <p className="text-red-500">Error loading store locations</p>
+                        <p className="text-sm text-gray-500 mt-2">{error.toString()}</p>
                     </div>
                 </CardContent>
             </Card>

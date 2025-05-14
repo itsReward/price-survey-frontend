@@ -10,11 +10,13 @@ import LoadingSpinner from './components/ui/Spinner'
 // Lazy load pages for better performance
 const Home = React.lazy(() => import('./pages/Home'))
 const Login = React.lazy(() => import('./pages/Login'))
+const Register = React.lazy(() => import('./pages/Register'))
 const Dashboard = React.lazy(() => import('./pages/Dashboard'))
 const PriceEntries = React.lazy(() => import('./pages/PriceEntries'))
 const Products = React.lazy(() => import('./pages/Products'))
 const Stores = React.lazy(() => import('./pages/Stores'))
 const Profile = React.lazy(() => import('./pages/Profile'))
+const AdminUserManagement = React.lazy(() => import('./pages/AdminUserManagement'))
 
 const pageTransition = {
     initial: { opacity: 0, y: 20 },
@@ -52,6 +54,14 @@ function App() {
                                             </motion.div>
                                         }
                                     />
+                                    <Route
+                                        path="/register"
+                                        element={
+                                            <motion.div {...pageTransition}>
+                                                <Register />
+                                            </motion.div>
+                                        }
+                                    />
                                     <Route path="/dashboard" element={
                                         <ProtectedRoute>
                                             <motion.div {...pageTransition}>
@@ -84,6 +94,13 @@ function App() {
                                         <ProtectedRoute>
                                             <motion.div {...pageTransition}>
                                                 <Profile />
+                                            </motion.div>
+                                        </ProtectedRoute>
+                                    } />
+                                    <Route path="/admin/users" element={
+                                        <ProtectedRoute requiredRole="ADMIN">
+                                            <motion.div {...pageTransition}>
+                                                <AdminUserManagement />
                                             </motion.div>
                                         </ProtectedRoute>
                                     } />

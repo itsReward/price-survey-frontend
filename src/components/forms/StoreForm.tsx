@@ -1,9 +1,11 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { X, Save, Store, MapPin, Globe, Navigation, Hash } from 'lucide-react'
+import { X, Save, Store, MapPin, Globe, Navigation, Hash, Search, Loader2 } from 'lucide-react'
 import Button from '@/components/ui/Button'
 import Card, { CardContent, CardHeader } from '@/components/ui/Card'
 import { Store as StoreType, StoreRequest } from '@/types/store'
+import { geocodingService } from '@/services/geocoding'
+import toast from 'react-hot-toast'
 
 interface StoreFormProps {
     store?: StoreType | null
@@ -29,6 +31,19 @@ const StoreForm: React.FC<StoreFormProps> = ({
     })
 
     const [errors, setErrors] = useState<{[key: string]: string}>({})
+    const [isGeocoding, setIsGeocoding] = useState(false)
+    const [geocodingResult, setGeocodingResult] = useState<string | null>(null)
+
+    // Auto-geocode when address fields change (with debounce)
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            if (formData.address && formData.city && formData.country) {
+                handleAutoGeocode()
+            }
+        }, 1000) // 1 second debounce
+
+        return () => clearTimeout(timeoutId)
+    }, [formData.address, formData.city, formData.region, formData.country])
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target
@@ -41,6 +56,100 @@ const StoreForm: React.FC<StoreFormProps> = ({
         if (errors[name]) {
             setErrors(prev => ({ ...prev, [name]: '' }))
         }
+    }
+
+    const handleAutoGeocode = async () => {
+        if (!formData.address || !formData.city || !formData.country) {
+            return
+        }
+
+        setIsGeocoding(true)
+        setGeocodingResult(null)
+
+        try {
+            const result = await geocodingService.geocodeAddress(
+                formData.address,
+                formData.city,
+                formData.region,
+                formData.country
+            )
+
+            setFormData(prev => ({
+                ...prev,
+                latitude: result.latitude,
+                longitude: result.longitude
+            }))
+
+            setGeocodingResult(`Found coordinates: ${result.latitude.toFixed(6)}, ${result.longitude.toFixed(6)}`)
+
+            if (result.formattedAddress) {
+                toast.success(`Location found: ${result.formattedAddress}`)
+            }
+        } catch (error) {
+            console.error('Geocoding error:', error)
+            setGeocodingResult(`Geocoding failed: ${error.message}`)
+            // Don't show error toast for auto-geocoding
+        } finally {
+            setIsGeocoding(false)
+        }
+    }
+
+    const handleManualGeocode = async () => {
+        if (!formData.address || !formData.city || !formData.country) {
+            toast.error('Please fill in address, city, and country first')
+            return
+        }
+
+        setIsGeocoding(true)
+        setGeocodingResult(null)
+
+        try {
+            const result = await geocodingService.geocodeAddress(
+                formData.address,
+                formData.city,
+                formData.region,
+                formData.country
+            )
+
+            setFormData(prev => ({
+                ...prev,
+                latitude: result.latitude,
+                longitude: result.longitude
+            }))
+
+            setGeocodingResult(`Found coordinates: ${result.latitude.toFixed(6)}, ${result.longitude.toFixed(6)}`)
+            toast.success(`Location found successfully!`)
+        } catch (error) {
+            console.error('Geocoding error:', error)
+            setGeocodingResult(`Geocoding failed: ${error.message}`)
+            toast.error(`Could not find location: ${error.message}`)
+        } finally {
+            setIsGeocoding(false)
+        }
+    }
+
+    const handleGetCurrentLocation = () => {
+        setIsGeocoding(true)
+        setGeocodingResult(null)
+
+        geocodingService.getCurrentLocation()
+            .then(result => {
+                setFormData(prev => ({
+                    ...prev,
+                    latitude: result.latitude,
+                    longitude: result.longitude
+                }))
+                setGeocodingResult(`Current location: ${result.latitude.toFixed(6)}, ${result.longitude.toFixed(6)}`)
+                toast.success('Current location set successfully!')
+            })
+            .catch(error => {
+                console.error('Current location error:', error)
+                setGeocodingResult(`Failed to get current location: ${error.message}`)
+                toast.error(`Could not get current location: ${error.message}`)
+            })
+            .finally(() => {
+                setIsGeocoding(false)
+            })
     }
 
     const validateForm = () => {
@@ -75,24 +184,6 @@ const StoreForm: React.FC<StoreFormProps> = ({
         }
     }
 
-    const handleGetCurrentLocation = () => {
-        if ('geolocation' in navigator) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    setFormData(prev => ({
-                        ...prev,
-                        latitude: position.coords.latitude,
-                        longitude: position.coords.longitude
-                    }))
-                },
-                (error) => {
-                    console.error('Error getting location:', error)
-                    // You might want to show a toast error here
-                }
-            )
-        }
-    }
-
     return (
         <motion.div
             initial={{ opacity: 0 }}
@@ -106,7 +197,7 @@ const StoreForm: React.FC<StoreFormProps> = ({
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.9, opacity: 0 }}
                 transition={{ type: "spring", damping: 20, stiffness: 300 }}
-                className="w-full max-w-md"
+                className="w-full max-w-lg"
                 onClick={(e) => e.stopPropagation()}
             >
                 <Card>
@@ -272,22 +363,56 @@ const StoreForm: React.FC<StoreFormProps> = ({
                                 )}
                             </div>
 
-                            {/* Coordinates */}
+                            {/* Coordinates with Geocoding */}
                             <div>
                                 <div className="flex justify-between items-center mb-2">
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                                         Location Coordinates (Optional)
                                     </label>
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={handleGetCurrentLocation}
-                                        leftIcon={<Navigation className="w-4 h-4" />}
-                                    >
-                                        Use Current
-                                    </Button>
+                                    <div className="flex space-x-2">
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={handleManualGeocode}
+                                            disabled={isGeocoding}
+                                            leftIcon={isGeocoding ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+                                        >
+                                            Find
+                                        </Button>
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={handleGetCurrentLocation}
+                                            disabled={isGeocoding}
+                                            leftIcon={<Navigation className="w-4 h-4" />}
+                                        >
+                                            Use Current
+                                        </Button>
+                                    </div>
                                 </div>
+
+                                {/* Geocoding Status */}
+                                {(isGeocoding || geocodingResult) && (
+                                    <div className="mb-3 p-2 rounded bg-gray-50 dark:bg-gray-700">
+                                        {isGeocoding ? (
+                                            <div className="flex items-center space-x-2 text-sm text-blue-600 dark:text-blue-400">
+                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                                <span>Finding location...</span>
+                                            </div>
+                                        ) : geocodingResult && (
+                                            <p className={`text-sm ${
+                                                geocodingResult.includes('failed') || geocodingResult.includes('Failed')
+                                                    ? 'text-red-600 dark:text-red-400'
+                                                    : 'text-green-600 dark:text-green-400'
+                                            }`}>
+                                                {geocodingResult}
+                                            </p>
+                                        )}
+                                    </div>
+                                )}
+
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
                                         <label htmlFor="latitude" className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
@@ -349,6 +474,11 @@ const StoreForm: React.FC<StoreFormProps> = ({
                                         )}
                                     </div>
                                 </div>
+
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                                    <em>Note:</em> Coordinates are automatically found when you fill in the address.
+                                    You can also manually search or use your current location.
+                                </p>
                             </div>
 
                             {/* Buttons */}
