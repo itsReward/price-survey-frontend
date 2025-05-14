@@ -10,7 +10,6 @@ import {
     Clock,
     CheckCircle,
     XCircle,
-    Settings,
     Plus
 } from 'lucide-react'
 import FadeIn from '@/components/animations/FadeIn'
