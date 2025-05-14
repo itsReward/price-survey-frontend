@@ -36,7 +36,7 @@ const Header: React.FC = () => {
             { name: 'Profile', href: '/profile', icon: User },
             // Admin-only routes
             ...(user?.role === 'ADMIN' ? [
-                { name: 'User Management', href: '/admin/users', icon: Users }
+                { name: 'Users', href: '/admin/users', icon: Users }
             ] : [])
         ] : [])
     ]
