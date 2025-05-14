@@ -13,6 +13,7 @@ import UserActivity from '@/components/dashboard/UserActivity'
 import { LineChart, BarChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { dashboardService } from '@/services/dashboard'
 import { useAuth } from '@/context/AuthContext'
+import StoreMapDebugger from '@/components/StoreMapDebugger'
 
 const Dashboard: React.FC = () => {
     const { user } = useAuth()
@@ -133,6 +134,8 @@ const Dashboard: React.FC = () => {
                         </FadeIn>
                     ))}
                 </div>
+
+                <StoreMapDebugger />
 
                 {/* Store Map */}
                 <FadeIn delay={0.2}>

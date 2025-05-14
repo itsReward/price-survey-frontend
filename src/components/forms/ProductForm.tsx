@@ -81,14 +81,11 @@ const ProductForm: React.FC<ProductFormProps> = ({
     ]
 
     const categoryPresets = [
-        'Beverage',
-        'Food',
-        'Snack',
-        'Dairy',
-        'Meat',
-        'Vegetable',
-        'Fruit',
-        'Bakery',
+        'Engine Oil',
+        'Gear Oil',
+        'Hydraulic Fluid',
+        'Grease',
+        'Lubricant',
         'Other'
     ]
 

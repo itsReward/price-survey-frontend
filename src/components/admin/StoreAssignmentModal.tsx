@@ -6,26 +6,31 @@ import Button from '@/components/ui/Button'
 import Card, { CardContent, CardHeader } from '@/components/ui/Card'
 import Skeleton from '@/components/ui/Skeleton'
 import { storeService } from '@/services/store'
+import { userService } from '@/services/user'
 import { User } from '@/types/auth'
 
 interface StoreAssignmentModalProps {
     user: User
-    isOpen: boolean
     onClose: () => void
-    onSave: (storeIds: number[]) => void
+    onSuccess: () => void
     isLoading?: boolean
 }
 
 const StoreAssignmentModal: React.FC<StoreAssignmentModalProps> = ({
                                                                        user,
-                                                                       isOpen,
                                                                        onClose,
-                                                                       onSave,
+                                                                       onSuccess,
                                                                        isLoading = false
                                                                    }) => {
-    const [selectedStoreIds, setSelectedStoreIds] = useState<number[]>(
-        user.assignedStores?.map(store => store.id) || []
-    )
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const [selectedStoreIds, setSelectedStoreIds] = useState<number[]>([])
+
+    // Initialize selectedStoreIds when user data is available
+    React.useEffect(() => {
+        if (user?.assignedStores) {
+            setSelectedStoreIds(user.assignedStores.map(store => store.id))
+        }
+    }, [user])
 
     const { data: stores, isLoading: storesLoading } = useQuery(
         'stores-for-assignment',
@@ -40,11 +45,24 @@ const StoreAssignmentModal: React.FC<StoreAssignmentModalProps> = ({
         )
     }
 
-    const handleSave = () => {
-        onSave(selectedStoreIds)
+    const handleSave = async () => {
+        if (!user) return
+
+        setIsSubmitting(true)
+        try {
+            // Call the userService to update store assignments
+            await userService.assignStoresToUser(user.id, selectedStoreIds)
+            onSuccess()
+            onClose()
+        } catch (error) {
+            console.error('Failed to assign stores:', error)
+            // Handle error - you might want to show a toast here
+        } finally {
+            setIsSubmitting(false)
+        }
     }
 
-    if (!isOpen) return null
+    if (!user) return null
 
     return (
         <motion.div
@@ -78,7 +96,7 @@ const StoreAssignmentModal: React.FC<StoreAssignmentModalProps> = ({
                             </Button>
                         </div>
                         <p className="text-sm text-gray-600 dark:text-gray-400">
-                            Select stores for {user.firstName} {user.lastName}
+                            Select stores for {user?.firstName} {user?.lastName}
                         </p>
                     </CardHeader>
                     <CardContent>
@@ -149,14 +167,14 @@ const StoreAssignmentModal: React.FC<StoreAssignmentModalProps> = ({
                             <Button
                                 onClick={handleSave}
                                 className="flex-1"
-                                isLoading={isLoading}
+                                isLoading={isSubmitting || isLoading}
                             >
                                 Save Assignment
                             </Button>
                             <Button
                                 variant="outline"
                                 onClick={onClose}
-                                disabled={isLoading}
+                                disabled={isSubmitting || isLoading}
                             >
                                 Cancel
                             </Button>

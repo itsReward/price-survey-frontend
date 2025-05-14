@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useQuery } from 'react-query'
 import { motion } from 'framer-motion'
 import Card, { CardContent, CardHeader } from '@/components/ui/Card'
@@ -21,198 +21,210 @@ interface MapStore {
     isActive: boolean
 }
 
-const StoreMap: React.FC<StoreMapProps> = ({
-                                               height = 'h-96',
-                                               showControls = true
-                                           }) => {
+const GoogleStoreMap: React.FC<StoreMapProps> = ({
+                                                     height = 'h-96',
+                                                     showControls = true
+                                                 }) => {
     const [selectedStore, setSelectedStore] = useState<MapStore | null>(null)
     const [isFullscreen, setIsFullscreen] = useState(false)
+    const [googleMapsLoaded, setGoogleMapsLoaded] = useState(false)
+    const mapContainerRef = useRef<HTMLDivElement>(null)
+    const mapRef = useRef<google.maps.Map | null>(null)
+    const markersRef = useRef<google.maps.Marker[]>([])
+    const infoWindowRef = useRef<google.maps.InfoWindow | null>(null)
 
     const { data: stores, isLoading, error } = useQuery(
         'stores-for-map',
         storeService.getStoresForMap,
         {
-            staleTime: 10 * 60 * 1000, // 10 minutes
+            staleTime: 10 * 60 * 1000,
         }
     )
 
-    // Filter stores with valid coordinates
-    const validStores = stores?.filter(store =>
-        store.latitude !== null &&
-        store.longitude !== null &&
-        !isNaN(store.latitude) &&
-        !isNaN(store.longitude)
-    ) || []
+    // Helper function to properly determine if a store is active
+    const isStoreActive = (store: any): boolean => {
+        console.log(`Checking store ${store.name}:`, {
+            isActive: store.isActive,
+            type: typeof store.isActive,
+            rawValue: JSON.stringify(store.isActive)
+        })
 
-    console.log('ValidStores:', validStores) // Debug log
-
-    // Create a simple custom map visualization
-    const renderCustomMap = () => {
-        if (!validStores.length) {
-            return (
-                <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
-                    <div className="text-center">
-                        <MapPin className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-                        <p>No stores with valid coordinates found</p>
-                    </div>
-                </div>
-            )
+        // Handle different possible formats
+        if (typeof store.isActive === 'boolean') {
+            return store.isActive
         }
 
-        // Calculate bounds with some padding
-        const lats = validStores.map(s => s.latitude)
-        const lngs = validStores.map(s => s.longitude)
-        const minLat = Math.min(...lats)
-        const maxLat = Math.max(...lats)
-        const minLng = Math.min(...lngs)
-        const maxLng = Math.max(...lngs)
+        // Handle string values
+        if (typeof store.isActive === 'string') {
+            const lowercased = store.isActive.toLowerCase()
+            return lowercased === 'true' || lowercased === '1' || lowercased === 'active'
+        }
 
-        // Add padding to bounds (10% of range)
-        const latRange = maxLat - minLat
-        const lngRange = maxLng - minLng
-        const padding = 0.1
+        // Handle numeric values (1 = active, 0 = inactive)
+        if (typeof store.isActive === 'number') {
+            return store.isActive === 1
+        }
 
-        const paddedMinLat = minLat - (latRange * padding)
-        const paddedMaxLat = maxLat + (latRange * padding)
-        const paddedMinLng = minLng - (lngRange * padding)
-        const paddedMaxLng = maxLng + (lngRange * padding)
+        // Handle null/undefined - could check other fields
+        if (store.isActive == null) {
+            // Maybe check if store has a status field instead
+            if (store.status) {
+                return store.status.toLowerCase() === 'active'
+            }
+            // Default to active if we can't determine
+            console.warn(`Cannot determine if store ${store.name} is active, defaulting to active`)
+            return true
+        }
 
-        // Normalize coordinates for display (0-100%)
-        const normalizeCoords = (lat: number, lng: number) => {
-            // Handle single point case
-            if (paddedMaxLat === paddedMinLat && paddedMaxLng === paddedMinLng) {
-                return { x: 50, y: 50 }
+        return Boolean(store.isActive)
+    }
+
+    // Load Google Maps API
+    useEffect(() => {
+        const loadGoogleMaps = async () => {
+            if (!googleMapsLoaded && typeof window !== 'undefined') {
+                const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+
+                if (!GOOGLE_MAPS_API_KEY) {
+                    console.error('Google Maps API key not configured')
+                    return
+                }
+
+                // @ts-ignore
+                window.initGoogleMap = () => {
+                    setGoogleMapsLoaded(true)
+                }
+
+                const script = document.createElement('script')
+                script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&callback=initGoogleMap`
+                script.async = true
+                script.defer = true
+                document.head.appendChild(script)
+            }
+        }
+
+        loadGoogleMaps()
+    }, [googleMapsLoaded])
+
+    // Initialize map when Google Maps is loaded
+    useEffect(() => {
+        if (!googleMapsLoaded || !mapContainerRef.current || mapRef.current) return
+
+        mapRef.current = new google.maps.Map(mapContainerRef.current, {
+            zoom: 10,
+            center: { lat: 0, lng: 0 },
+            mapTypeId: google.maps.MapTypeId.ROADMAP,
+        })
+
+        infoWindowRef.current = new google.maps.InfoWindow()
+    }, [googleMapsLoaded])
+
+    // Update markers when stores change
+    useEffect(() => {
+        if (!googleMapsLoaded || !mapRef.current || !stores) return
+
+        // Clear existing markers
+        markersRef.current.forEach(marker => marker.setMap(null))
+        markersRef.current = []
+
+        // Filter valid stores and log their data
+        const validStores = stores.filter(store => {
+            const hasValidCoords = store.latitude !== null &&
+                store.longitude !== null &&
+                !isNaN(store.latitude) &&
+                !isNaN(store.longitude) &&
+                Math.abs(store.latitude) <= 90 &&
+                Math.abs(store.longitude) <= 180
+
+            console.log(`Store ${store.name}:`, {
+                hasValidCoords,
+                isActive: isStoreActive(store),
+                rawData: store
+            })
+
+            return hasValidCoords
+        })
+
+        if (validStores.length === 0) return
+
+        // Create bounds
+        const bounds = new google.maps.LatLngBounds()
+
+        // Add markers with proper isActive detection
+        validStores.forEach(store => {
+            const storeIsActive = isStoreActive(store)
+
+            // Create a custom SVG marker icon (teardrop style like Leaflet)
+            const svgIcon = {
+                url: `data:image/svg+xml,${encodeURIComponent(`
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="40" viewBox="0 0 24 40">
+                        <path d="M12 0c-6.6 0-12 5.4-12 12 0 9 12 24 12 24s12-15 12-24c0-6.6-5.4-12-12-12z" 
+                              fill="${storeIsActive ? '#10b981' : '#ef4444'}" 
+                              stroke="#ffffff" 
+                              stroke-width="2"/>
+                        <circle cx="12" cy="12" r="6" fill="#ffffff"/>
+                    </svg>
+                `)}`,
+                scaledSize: new google.maps.Size(24, 40),
+                anchor: new google.maps.Point(12, 40),
             }
 
-            const x = paddedMaxLng === paddedMinLng ? 50 :
-                ((lng - paddedMinLng) / (paddedMaxLng - paddedMinLng)) * 100
-            const y = paddedMaxLat === paddedMinLat ? 50 :
-                (1 - (lat - paddedMinLat) / (paddedMaxLat - paddedMinLat)) * 100
+            const marker = new google.maps.Marker({
+                position: { lat: store.latitude, lng: store.longitude },
+                map: mapRef.current,
+                title: store.name,
+                icon: svgIcon,
+                zIndex: 1,
+            })
 
-            return { x: Math.max(5, Math.min(95, x)), y: Math.max(5, Math.min(95, y)) }
+            // Add click listener for the marker
+            marker.addListener('click', () => {
+                if (infoWindowRef.current) {
+                    const content = `
+                        <div style="min-width: 200px; padding: 8px;">
+                            <h3 style="margin: 0 0 8px 0; font-weight: bold; color: ${storeIsActive ? '#10b981' : '#ef4444'};">${store.name}</h3>
+                            <p style="margin: 4px 0; color: #666; font-size: 14px;">${store.address}</p>
+                            <p style="margin: 4px 0; color: #666; font-size: 14px;">${store.city}</p>
+                            <p style="margin: 4px 0; font-size: 12px; color: #999;">${store.latitude.toFixed(4)}, ${store.longitude.toFixed(4)}</p>
+                            <p style="margin: 4px 0; font-size: 12px; font-weight: bold; color: ${storeIsActive ? '#10b981' : '#ef4444'};">
+                                ${storeIsActive ? 'Active' : 'Inactive'}
+                            </p>
+                            <p style="margin: 4px 0; font-size: 11px; color: #aaa;">
+                                Debug: isActive = ${JSON.stringify(store.isActive)} (${typeof store.isActive})
+                            </p>
+                        </div>
+                    `
+                    infoWindowRef.current.setContent(content)
+                    infoWindowRef.current.open(mapRef.current, marker)
+                }
+            })
+
+            markersRef.current.push(marker)
+            bounds.extend({ lat: store.latitude, lng: store.longitude })
+        })
+
+        // Fit map to bounds
+        if (validStores.length > 0) {
+            mapRef.current.fitBounds(bounds)
+
+            // Set minimum zoom level
+            const listener = google.maps.event.addListener(mapRef.current, 'idle', () => {
+                if (mapRef.current!.getZoom()! > 15) {
+                    mapRef.current!.setZoom(15)
+                }
+                google.maps.event.removeListener(listener)
+            })
         }
+    }, [stores, googleMapsLoaded])
 
-        console.log('Bounds:', { minLat, maxLat, minLng, maxLng }) // Debug log
-
-        return (
-            <div className="relative w-full h-full bg-gradient-to-br from-green-50 to-emerald-50 dark:from-gray-800 dark:to-gray-700 overflow-hidden rounded-lg">
-                {/* Background grid */}
-                <svg className="absolute inset-0 w-full h-full">
-                    <defs>
-                        <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="1" className="text-gray-200 dark:text-gray-600 opacity-30"/>
-                        </pattern>
-                    </defs>
-                    <rect width="100%" height="100%" fill="url(#grid)" />
-                </svg>
-
-                {/* Latitude labels */}
-                <div className="absolute left-2 top-4 text-xs text-gray-500 dark:text-gray-400">
-                    {paddedMaxLat.toFixed(2)}°
-                </div>
-                <div className="absolute left-2 bottom-4 text-xs text-gray-500 dark:text-gray-400">
-                    {paddedMinLat.toFixed(2)}°
-                </div>
-
-                {/* Longitude labels */}
-                <div className="absolute top-2 left-4 text-xs text-gray-500 dark:text-gray-400">
-                    {paddedMinLng.toFixed(2)}°
-                </div>
-                <div className="absolute top-2 right-4 text-xs text-gray-500 dark:text-gray-400">
-                    {paddedMaxLng.toFixed(2)}°
-                </div>
-
-                {/* Store markers */}
-                {validStores.map((store, index) => {
-                    const { x, y } = normalizeCoords(store.latitude, store.longitude)
-
-                    console.log(`Store ${store.name}: lat=${store.latitude}, lng=${store.longitude}, x=${x}%, y=${y}%`) // Debug log
-
-                    return (
-                        <motion.div
-                            key={store.id}
-                            initial={{ opacity: 0, scale: 0 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: index * 0.1 }}
-                            className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer"
-                            style={{ left: `${x}%`, top: `${y}%` }}
-                            onClick={() => setSelectedStore(store)}
-                            onMouseEnter={() => setSelectedStore(store)}
-                            onMouseLeave={() => setSelectedStore(null)}
-                        >
-                            <motion.div
-                                whileHover={{ scale: 1.2 }}
-                                whileTap={{ scale: 0.9 }}
-                                className={`relative z-10 ${store.isActive ? 'text-green-500' : 'text-red-500'}`}
-                            >
-                                <MapPin className="w-8 h-8 drop-shadow-lg" fill="currentColor" />
-                                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-white" />
-                            </motion.div>
-                        </motion.div>
-                    )
-                })}
-
-                {/* Store info popup */}
-                {selectedStore && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="absolute bottom-4 left-4 right-4 bg-white dark:bg-gray-800 rounded-lg shadow-xl p-4 z-20 max-w-sm mx-auto"
-                    >
-                        <div className="flex items-start space-x-3">
-                            <div className={`flex-shrink-0 p-2 rounded-lg ${selectedStore.isActive ? 'bg-green-100 dark:bg-green-900' : 'bg-red-100 dark:bg-red-900'}`}>
-                                <StoreIcon className={`w-5 h-5 ${selectedStore.isActive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`} />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                                <h3 className="font-semibold text-gray-900 dark:text-white truncate">
-                                    {selectedStore.name}
-                                </h3>
-                                <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
-                                    {selectedStore.address}
-                                </p>
-                                <p className="text-sm text-gray-500 dark:text-gray-500">
-                                    {selectedStore.city}
-                                </p>
-                                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                                    {selectedStore.latitude.toFixed(4)}, {selectedStore.longitude.toFixed(4)}
-                                </p>
-                                <p className={`text-xs font-medium mt-1 ${selectedStore.isActive ? 'text-green-600' : 'text-red-600'}`}>
-                                    {selectedStore.isActive ? 'Active' : 'Inactive'}
-                                </p>
-                            </div>
-                        </div>
-                    </motion.div>
-                )}
-
-                {/* Legend */}
-                <div className="absolute top-4 right-4 bg-white dark:bg-gray-800 rounded-lg p-3 shadow-lg">
-                    <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Legend</h4>
-                    <div className="space-y-2">
-                        <div className="flex items-center space-x-2">
-                            <MapPin className="w-4 h-4 text-green-500" fill="currentColor" />
-                            <span className="text-xs text-gray-600 dark:text-gray-400">Active Store</span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                            <MapPin className="w-4 h-4 text-red-500" fill="currentColor" />
-                            <span className="text-xs text-gray-600 dark:text-gray-400">Inactive Store</span>
-                        </div>
-                    </div>
-                    <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-600">
-                        <p className="text-xs text-gray-500 dark:text-gray-500">
-                            {validStores.length} stores shown
-                        </p>
-                    </div>
-                </div>
-
-                {/* Zoom level indicator */}
-                <div className="absolute bottom-4 right-4 bg-white dark:bg-gray-800 rounded-lg p-2 shadow">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Custom Map View
-                    </p>
-                </div>
-            </div>
-        )
-    }
+    // Handle fullscreen
+    useEffect(() => {
+        if (mapRef.current) {
+            setTimeout(() => {
+                google.maps.event.trigger(mapRef.current, 'resize')
+            }, 100)
+        }
+    }, [isFullscreen])
 
     if (error) {
         return (
@@ -254,13 +266,44 @@ const StoreMap: React.FC<StoreMapProps> = ({
                     </div>
                 </CardHeader>
                 <CardContent className="p-0">
-                    <div className={`${isFullscreen ? 'h-[calc(100vh-8rem)]' : height} w-full`}>
-                        {isLoading ? (
+                    <div className={`${isFullscreen ? 'h-[calc(100vh-8rem)]' : height} w-full relative`}>
+                        {isLoading || !googleMapsLoaded ? (
                             <div className="h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800">
-                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+                                <div className="text-center">
+                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500 mx-auto mb-4"></div>
+                                    <p className="text-gray-500 dark:text-gray-400">
+                                        {!googleMapsLoaded ? 'Loading Google Maps...' : 'Loading store locations...'}
+                                    </p>
+                                </div>
                             </div>
                         ) : (
-                            renderCustomMap()
+                            <div
+                                ref={mapContainerRef}
+                                className="w-full h-full rounded-lg"
+                                style={{ minHeight: '400px' }}
+                            />
+                        )}
+
+                        {/* Legend overlay */}
+                        {googleMapsLoaded && (
+                            <div className="absolute top-4 right-4 bg-white dark:bg-gray-800 rounded-lg p-3 shadow-lg z-10">
+                                <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Legend</h4>
+                                <div className="space-y-2">
+                                    <div className="flex items-center space-x-2">
+                                        <div className="w-4 h-4 bg-green-500 rounded-full"></div>
+                                        <span className="text-xs text-gray-600 dark:text-gray-400">Active Store</span>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <div className="w-4 h-4 bg-red-500 rounded-full"></div>
+                                        <span className="text-xs text-gray-600 dark:text-gray-400">Inactive Store</span>
+                                    </div>
+                                </div>
+                                <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-600">
+                                    <p className="text-xs text-gray-500 dark:text-gray-500">
+                                        {stores?.length || 0} stores
+                                    </p>
+                                </div>
+                            </div>
                         )}
                     </div>
                 </CardContent>
@@ -269,4 +312,4 @@ const StoreMap: React.FC<StoreMapProps> = ({
     )
 }
 
-export default StoreMap
+export default GoogleStoreMap
