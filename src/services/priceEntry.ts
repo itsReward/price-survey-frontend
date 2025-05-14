@@ -18,10 +18,21 @@ class PriceEntryService {
     }
 
     async createPriceEntry(data: PriceEntryRequest): Promise<PriceEntry> {
-        return await apiService.post<PriceEntry>('/api/price-entries', data)
+        console.log('PriceEntryService - createPriceEntry called with:', data)
+        console.log('Data types:', {
+            storeId: typeof data.storeId,
+            productId: typeof data.productId,
+            price: typeof data.price,
+            quantity: typeof data.quantity
+        })
+
+        const response = await apiService.post<PriceEntry>('/api/price-entries', data)
+        console.log('PriceEntryService - createPriceEntry response:', response)
+        return response
     }
 
     async updatePriceEntry(id: number, data: PriceEntryRequest): Promise<PriceEntry> {
+        console.log('PriceEntryService - updatePriceEntry called with id:', id, 'data:', data)
         return await apiService.put<PriceEntry>(`/api/price-entries/${id}`, data)
     }
 

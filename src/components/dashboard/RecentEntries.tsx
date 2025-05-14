@@ -3,7 +3,16 @@ import { motion } from 'framer-motion'
 import { Package, Clock, ArrowRight } from 'lucide-react'
 import Card, { CardContent, CardHeader } from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
-import { RecentEntry } from '@/types/dashboard'
+import Skeleton from '@/components/ui/Skeleton'
+
+interface RecentEntry {
+    id: number
+    storeName: string
+    productName: string
+    price: number
+    quantity: number
+    createdAt: string
+}
 
 interface RecentEntriesProps {
     entries: RecentEntry[]
@@ -57,12 +66,12 @@ const RecentEntries: React.FC<RecentEntriesProps> = ({
                     <div className="space-y-4">
                         {Array.from({ length: 5 }).map((_, i) => (
                             <div key={i} className="flex items-center space-x-4">
-                                <div className="w-12 h-12 bg-gray-200 rounded-lg animate-pulse"></div>
+                                <Skeleton avatarSize="md" />
                                 <div className="flex-1 space-y-2">
-                                    <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
-                                    <div className="h-3 bg-gray-200 rounded w-1/2 animate-pulse"></div>
+                                    <Skeleton width="70%" height="16px" />
+                                    <Skeleton width="50%" height="14px" />
                                 </div>
-                                <div className="h-6 bg-gray-200 rounded w-20 animate-pulse"></div>
+                                <Skeleton width="80px" height="24px" />
                             </div>
                         ))}
                     </div>

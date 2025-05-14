@@ -58,14 +58,22 @@ class ApiService {
 
     async post<T>(url: string, data = {}, config = {}): Promise<T> {
         try {
+            console.log('API Service - POST request to:', url)
+            console.log('API Service - POST data:', data)
+            console.log('API Service - POST data stringified:', JSON.stringify(data))
+
             const response: AxiosResponse<T> = await api.post(url, data, config)
+            console.log('API Service - POST response:', response)
             return response.data
         } catch (error) {
             console.error(`POST ${url} failed:`, error)
+            // Log the request that was actually sent
+            if (error.request) {
+                console.error('Request that was sent:', error.request._data)
+            }
             throw error
         }
     }
-
     async put<T>(url: string, data = {}, config = {}): Promise<T> {
         try {
             const response: AxiosResponse<T> = await api.put(url, data, config)

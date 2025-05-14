@@ -37,8 +37,29 @@ class StoreService {
         city: string;
         latitude: number;
         longitude: number;
+        isActive: boolean;
     }>> {
-        return await apiService.get<any[]>('/api/stores/map')
+        try {
+            // First try the dedicated map endpoint
+            return await apiService.get<any[]>('/api/stores/map')
+        } catch (error) {
+            // Fallback to all stores if map endpoint doesn't exist
+            console.warn('Map endpoint not available, falling back to all stores')
+            const allStores = await this.getStores()
+
+            // Filter and transform stores with valid coordinates
+            return allStores
+                .filter(store => store.latitude !== null && store.longitude !== null)
+                .map(store => ({
+                    id: store.id,
+                    name: store.name,
+                    address: store.address,
+                    city: store.city,
+                    latitude: store.latitude!,
+                    longitude: store.longitude!,
+                    isActive: store.isActive
+                }))
+        }
     }
 }
 
