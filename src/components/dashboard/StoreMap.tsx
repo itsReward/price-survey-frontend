@@ -10,17 +10,6 @@ interface StoreMapProps {
     height?: string
     showControls?: boolean
 }
-
-interface MapStore {
-    id: number
-    name: string
-    address: string
-    city: string
-    latitude: number
-    longitude: number
-    isActive: boolean
-}
-
 // Global state to track Google Maps loading
 let googleMapsPromise: Promise<void> | null = null
 let googleMapsLoaded = false
@@ -63,10 +52,10 @@ const loadGoogleMaps = async (apiKey: string): Promise<void> => {
         // Create a unique callback name
         const callbackName = `initGoogleMap_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 
-        // Add the callback to window
-        window[callbackName] = () => {
+            // Add the callback to window
+        ;(window as any)[callbackName] = () => {
             googleMapsLoaded = true
-            delete window[callbackName] // Clean up
+            delete (window as any)[callbackName] // Clean up
             resolve()
         }
 
@@ -76,7 +65,7 @@ const loadGoogleMaps = async (apiKey: string): Promise<void> => {
         script.async = true
         script.defer = true
         script.onerror = () => {
-            delete window[callbackName]
+            delete (window as any)[callbackName]
             googleMapsPromise = null
             reject(new Error('Failed to load Google Maps'))
         }
@@ -91,7 +80,6 @@ const GoogleStoreMap: React.FC<StoreMapProps> = ({
                                                      height = 'h-96',
                                                      showControls = true
                                                  }) => {
-    const [selectedStore, setSelectedStore] = useState<MapStore | null>(null)
     const [isFullscreen, setIsFullscreen] = useState(false)
     const [mapsReady, setMapsReady] = useState(googleMapsLoaded)
     const [mapError, setMapError] = useState<string | null>(null)
@@ -146,10 +134,18 @@ const GoogleStoreMap: React.FC<StoreMapProps> = ({
         return Boolean(store.isActive)
     }
 
+    // Get environment variable properly
+    const getEnvVar = (key: string): string | undefined => {
+        if (typeof import.meta?.env !== 'undefined') {
+            return import.meta.env[key] as string | undefined
+        }
+        return undefined
+    }
+
     // Load Google Maps API
     useEffect(() => {
         const initGoogleMaps = async () => {
-            const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+            const GOOGLE_MAPS_API_KEY = getEnvVar('VITE_GOOGLE_MAPS_API_KEY')
 
             if (!GOOGLE_MAPS_API_KEY) {
                 setMapError('Google Maps API key not configured')
@@ -230,6 +226,7 @@ const GoogleStoreMap: React.FC<StoreMapProps> = ({
                 scaledSize: new google.maps.Size(24, 40),
                 anchor: new google.maps.Point(12, 40),
             }
+
 
             const marker = new google.maps.Marker({
                 position: { lat: store.latitude, lng: store.longitude },

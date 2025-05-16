@@ -1,5 +1,5 @@
 // Store Types
-export default interface Store {
+export interface Store {
     id: number
     name: string
     address: string

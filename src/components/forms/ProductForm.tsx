@@ -59,11 +59,13 @@ const ProductForm: React.FC<ProductFormProps> = ({
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
         if (validateForm()) {
-            // Clean up the data before submitting
-            const cleanData = {
-                ...formData,
-                description: formData.description || undefined,
-                brand: formData.brand || undefined
+            // Clean up the data before submitting - handle undefined properly
+            const cleanData: ProductRequest = {
+                name: formData.name,
+                category: formData.category,
+                volumeMl: formData.volumeMl,
+                ...(formData.description ? { description: formData.description } : {}),
+                ...(formData.brand ? { brand: formData.brand } : {})
             }
             onSubmit(cleanData)
         }

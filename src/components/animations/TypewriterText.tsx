@@ -24,6 +24,7 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
     const [currentIndex, setCurrentIndex] = useState(0)
     const [isComplete, setIsComplete] = useState(false)
 
+    // @ts-ignore
     useEffect(() => {
         if (currentIndex < text.length) {
             const timeout = setTimeout(() => {
@@ -40,7 +41,7 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
 
     return (
         <span className={className}>
-      {displayText}
+            {displayText}
             {showCursor && (
                 <motion.span
                     className={`ml-1 ${cursorColor}`}
@@ -50,7 +51,7 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
                     |
                 </motion.span>
             )}
-    </span>
+        </span>
     )
 }
 

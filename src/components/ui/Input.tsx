@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { Eye, EyeOff, AlertCircle } from 'lucide-react'
 import { cn } from '@/utils/cn'
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size' | 'style'> {
     label?: string
     error?: string | undefined  // Make explicit that undefined is allowed
     leftIcon?: React.ReactNode
@@ -12,7 +12,8 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
     isPassword?: boolean
     showPasswordToggle?: boolean
     variant?: 'default' | 'filled' | 'underlined'
-    size?: 'sm' | 'md' | 'lg'
+    size?: 'sm' | 'md' | 'lg'  // Override the HTML size attribute
+    style?: React.CSSProperties
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(

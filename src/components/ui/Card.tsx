@@ -15,7 +15,6 @@ const Card: React.FC<CardProps> = ({
                                        hover = false,
                                        onClick
                                    }) => {
-    // @ts-ignore
     return (
         <motion.div
             className={cn(
@@ -31,7 +30,6 @@ const Card: React.FC<CardProps> = ({
         </motion.div>
     )
 }
-
 interface CardHeaderProps {
     children: React.ReactNode
     className?: string

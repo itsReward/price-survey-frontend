@@ -3,9 +3,10 @@ import { motion } from 'framer-motion'
 import { X, Save, Store, MapPin, Globe, Navigation, Hash, Search, Loader2 } from 'lucide-react'
 import Button from '@/components/ui/Button'
 import Card, { CardContent, CardHeader } from '@/components/ui/Card'
-import { Store as StoreType, StoreRequest } from '@/types/store'
+import {Store as StoreType} from '@/types/store'
 import { geocodingService } from '@/services/geocoding'
 import toast from 'react-hot-toast'
+import {StoreRequest} from "@/types/store";
 
 interface StoreFormProps {
     store?: StoreType | null
