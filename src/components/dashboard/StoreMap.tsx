@@ -10,17 +10,49 @@ interface StoreMapProps {
     height?: string
     showControls?: boolean
 }
+
+// Debug function to check environment variables
+const debugEnvVariables = () => {
+    console.log("Environment variables debug:");
+    // Log all environment variables
+    console.log("All available env variables:", import.meta.env);
+
+    // Check specific variables with multiple access methods
+    const googleMapsKey = import.meta.env['VITE_GOOGLE_MAPS_API_KEY'] ||
+        import.meta.env['VITE_GOOGLE_MAPS_API_KEY'];
+
+    console.log("VITE_GOOGLE_MAPS_API_KEY:", googleMapsKey);
+    console.log("Key type:", typeof googleMapsKey);
+    console.log("Key length:", googleMapsKey ? googleMapsKey.length : 0);
+
+    // Check if it's potentially hidden in the stringified version (redacted for security)
+    const envString = JSON.stringify(import.meta.env);
+    console.log("Contains GOOGLE_MAPS_API_KEY:", envString.includes("GOOGLE_MAPS_API_KEY"));
+}
+
 // Global state to track Google Maps loading
 let googleMapsPromise: Promise<void> | null = null
 let googleMapsLoaded = false
 
-const loadGoogleMaps = async (apiKey: string): Promise<void> => {
+const loadGoogleMaps = async (): Promise<void> => {
     if (googleMapsLoaded) {
         return Promise.resolve()
     }
 
     if (googleMapsPromise) {
         return googleMapsPromise
+    }
+
+    // Run debug function
+    debugEnvVariables();
+
+    // Get API key with fallbacks
+    const apiKey = import.meta.env['VITE_GOOGLE_MAPS_API_KEY'] ||
+        import.meta.env['VITE_GOOGLE_MAPS_API_KEY'];
+
+    if (!apiKey) {
+        console.error("Google Maps API key not found in environment variables");
+        return Promise.reject(new Error('Google Maps API key not configured'));
     }
 
     googleMapsPromise = new Promise((resolve, reject) => {
@@ -64,7 +96,8 @@ const loadGoogleMaps = async (apiKey: string): Promise<void> => {
         script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=${callbackName}&loading=async`
         script.async = true
         script.defer = true
-        script.onerror = () => {
+        script.onerror = (e) => {
+            console.error('Failed to load Google Maps script:', e);
             delete (window as any)[callbackName]
             googleMapsPromise = null
             reject(new Error('Failed to load Google Maps'))
@@ -134,30 +167,15 @@ const GoogleStoreMap: React.FC<StoreMapProps> = ({
         return Boolean(store.isActive)
     }
 
-    // Get environment variable properly
-    const getEnvVar = (key: string): string | undefined => {
-        if (typeof import.meta?.env !== 'undefined') {
-            return import.meta.env[key] as string | undefined
-        }
-        return undefined
-    }
-
     // Load Google Maps API
     useEffect(() => {
         const initGoogleMaps = async () => {
-            const GOOGLE_MAPS_API_KEY = getEnvVar('VITE_GOOGLE_MAPS_API_KEY')
-
-            if (!GOOGLE_MAPS_API_KEY) {
-                setMapError('Google Maps API key not configured')
-                return
-            }
-
             try {
-                await loadGoogleMaps(GOOGLE_MAPS_API_KEY)
+                await loadGoogleMaps()
                 setMapsReady(true)
             } catch (error) {
                 console.error('Failed to load Google Maps:', error)
-                setMapError('Failed to load Google Maps')
+                setMapError('Failed to load Google Maps: ' + (error instanceof Error ? error.message : String(error)))
             }
         }
 
@@ -289,7 +307,29 @@ const GoogleStoreMap: React.FC<StoreMapProps> = ({
                     <div className="text-center py-8">
                         <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                         <p className="text-red-500">Error loading store locations</p>
-                        <p className="text-sm text-gray-500 mt-2">{error?.toString() || mapError}</p>
+                        <p className="text-sm text-gray-500 mt-2">{mapError || error?.toString()}</p>
+                        <div className="mt-4 p-4 bg-gray-100 dark:bg-gray-800 text-left rounded-lg">
+                            <p className="text-sm font-semibold mb-2">Troubleshooting tips:</p>
+                            <ul className="text-xs text-gray-600 dark:text-gray-400 list-disc list-inside space-y-1">
+                                <li>Check that the Google Maps API key is correctly set in your environment variables</li>
+                                <li>Variable name should be VITE_GOOGLE_MAPS_API_KEY</li>
+                                <li>Verify the API key is enabled for Google Maps JavaScript API</li>
+                                <li>Ensure the API key doesn't have domain restrictions preventing its use</li>
+                            </ul>
+                            <div className="mt-4">
+                                <Button
+                                    onClick={() => {
+                                        debugEnvVariables();
+                                        console.log("Debug info logged to console");
+                                        // Force rerender by setting state
+                                        setMapError(`${mapError} - Debug info logged to console at ${new Date().toISOString()}`);
+                                    }}
+                                    size="sm"
+                                >
+                                    Run Diagnostic
+                                </Button>
+                            </div>
+                        </div>
                     </div>
                 </CardContent>
             </Card>
