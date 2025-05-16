@@ -52,7 +52,7 @@ const Button: React.FC<ButtonProps> = ({
                 className
             )}
             disabled={disabled || isLoading}
-            style={style}
+            {...(style !== undefined && { style })}
             {...props}
         >
             <span className="flex items-center justify-center space-x-2">
