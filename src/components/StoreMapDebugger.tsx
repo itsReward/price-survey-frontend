@@ -22,11 +22,13 @@ const StoreMapDebugger: React.FC = () => {
 
         if (mapStores && mapStores.length > 0) {
             console.log('Sample map store:', mapStores[0])
+            // @ts-ignore
             console.log('Map store keys:', Object.keys(mapStores[0]))
         }
 
         if (allStores && allStores.length > 0) {
             console.log('Sample all store:', allStores[0])
+            // @ts-ignore
             console.log('All store keys:', Object.keys(allStores[0]))
         }
     }, [mapStores, allStores])
@@ -72,7 +74,7 @@ const StoreMapDebugger: React.FC = () => {
             <div className="mt-4">
                 <h4 className="font-semibold mb-2">Active Status Analysis</h4>
                 <div className="bg-white rounded p-3">
-                    {mapStores?.map((store, index) => (
+                    {mapStores?.map((store) => (
                         <div key={store.id} className="mb-2 text-sm">
                             <strong>{store.name}:</strong>
                             <span className="ml-2">

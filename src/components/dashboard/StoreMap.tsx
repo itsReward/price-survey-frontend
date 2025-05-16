@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import Card, { CardContent, CardHeader } from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import { storeService } from '@/services/store'
-import { MapPin, Store as StoreIcon, Maximize2, Minimize2 } from 'lucide-react'
+import { MapPin, Maximize2, Minimize2 } from 'lucide-react'
 
 interface StoreMapProps {
     height?: string

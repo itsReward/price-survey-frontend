@@ -25,8 +25,7 @@ const Register: React.FC = () => {
     const [errors, setErrors] = useState<{[key: string]: string}>({})
 
     const navigate = useNavigate()
-    const location = useLocation()
-
+    useLocation();
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target
         setFormData(prev => ({
@@ -43,23 +42,23 @@ const Register: React.FC = () => {
         const newErrors: {[key: string]: string} = {}
 
         if (!formData.firstName.trim()) {
-            newErrors.firstName = 'First name is required'
+            newErrors['firstName'] = 'First name is required'
         }
         if (!formData.lastName.trim()) {
-            newErrors.lastName = 'Last name is required'
+            newErrors['lastName'] = 'Last name is required'
         }
         if (!formData.email.trim()) {
-            newErrors.email = 'Email is required'
+            newErrors['email'] = 'Email is required'
         } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-            newErrors.email = 'Invalid email format'
+            newErrors['email'] = 'Invalid email format'
         }
         if (!formData.password) {
-            newErrors.password = 'Password is required'
+            newErrors['password'] = 'Password is required'
         } else if (formData.password.length < 6) {
-            newErrors.password = 'Password must be at least 6 characters'
+            newErrors['password'] = 'Password must be at least 6 characters'
         }
         if (formData.password !== formData.confirmPassword) {
-            newErrors.confirmPassword = 'Passwords do not match'
+            newErrors['confirmPassword'] = 'Passwords do not match'
         }
 
         setErrors(newErrors)
@@ -196,7 +195,7 @@ const Register: React.FC = () => {
                                         onChange={handleInputChange}
                                         placeholder="First name"
                                         leftIcon={<User className="w-5 h-5" />}
-                                        error={errors.firstName}
+                                        error={errors['firstName']}
                                         required
                                     />
                                     <Input
@@ -206,7 +205,7 @@ const Register: React.FC = () => {
                                         onChange={handleInputChange}
                                         placeholder="Last name"
                                         leftIcon={<User className="w-5 h-5" />}
-                                        error={errors.lastName}
+                                        error={errors['lastName']}
                                         required
                                     />
                                 </div>

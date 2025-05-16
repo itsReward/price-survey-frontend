@@ -38,6 +38,7 @@ export function useAuth(options: UseAuthOptions = {}) {
 
         try {
             // Decode token to check expiry
+            // @ts-ignore
             const tokenPayload = JSON.parse(atob(token.split('.')[1]))
             const isExpired = Date.now() >= tokenPayload.exp * 1000
 

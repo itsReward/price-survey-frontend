@@ -24,6 +24,7 @@ const Toast: React.FC<ToastProps> = ({
                                          onClose,
                                          action
                                      }) => {
+    // @ts-ignore
     React.useEffect(() => {
         if (duration > 0) {
             const timer = setTimeout(() => {

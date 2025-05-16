@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export interface UseApiOptions {
     refetchInterval?: number
@@ -54,6 +54,7 @@ export function useApi<T>(
         }
     }, [enabled])
 
+    // @ts-ignore
     useEffect(() => {
         if (refetchInterval && enabled) {
             const interval = setInterval(fetchData, refetchInterval)

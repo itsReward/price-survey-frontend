@@ -52,7 +52,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({
         })
     }, [removeToast, maxToasts])
 
-    const success = useCallback((title: string, message?: string, options: Partial<ToastProps> = {}) => {
+    const success = useCallback((title: string, message: string = '', options: Partial<ToastProps> = {}) => {
         addToast({
             type: 'success',
             title,
@@ -61,7 +61,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({
         })
     }, [addToast])
 
-    const error = useCallback((title: string, message?: string, options: Partial<ToastProps> = {}) => {
+    const error = useCallback((title: string, message: string = '', options: Partial<ToastProps> = {}) => {
         addToast({
             type: 'error',
             title,
@@ -70,7 +70,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({
         })
     }, [addToast])
 
-    const warning = useCallback((title: string, message?: string, options: Partial<ToastProps> = {}) => {
+    const warning = useCallback((title: string, message: string = '', options: Partial<ToastProps> = {}) => {
         addToast({
             type: 'warning',
             title,
@@ -79,7 +79,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({
         })
     }, [addToast])
 
-    const info = useCallback((title: string, message?: string, options: Partial<ToastProps> = {}) => {
+    const info = useCallback((title: string, message: string = '', options: Partial<ToastProps> = {}) => {
         addToast({
             type: 'info',
             title,

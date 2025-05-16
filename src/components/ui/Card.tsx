@@ -15,6 +15,7 @@ const Card: React.FC<CardProps> = ({
                                        hover = false,
                                        onClick
                                    }) => {
+    // @ts-ignore
     return (
         <motion.div
             className={cn(

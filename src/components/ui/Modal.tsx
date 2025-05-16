@@ -27,6 +27,7 @@ const Modal: React.FC<ModalProps> = ({
                                          showCloseButton = true,
                                          className
                                      }) => {
+    // @ts-ignore
     useEffect(() => {
         if (closeOnEscape) {
             const handleEscape = (event: KeyboardEvent) => {

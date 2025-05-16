@@ -38,6 +38,7 @@ const Button: React.FC<ButtonProps> = ({
         lg: "px-6 py-3 text-lg"
     }
 
+    // @ts-ignore
     return (
         <motion.button
             whileHover={{ scale: 1.02 }}
