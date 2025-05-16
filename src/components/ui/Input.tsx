@@ -3,10 +3,9 @@ import { motion } from 'framer-motion'
 import { Eye, EyeOff, AlertCircle } from 'lucide-react'
 import { cn } from '@/utils/cn'
 
-// @ts-ignore
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
     label?: string
-    error?: string
+    error?: string | undefined  // Make explicit that undefined is allowed
     leftIcon?: React.ReactNode
     rightIcon?: React.ReactNode
     helperText?: string
@@ -65,7 +64,6 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             className
         )
 
-        // @ts-ignore
         return (
             <div className="space-y-1">
                 {label && (
@@ -131,16 +129,16 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                     )}
                 </div>
 
-                {(error || helperText) && (
+                {(error !== undefined || helperText) && (
                     <motion.div
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
                         className="flex items-center space-x-1"
                     >
-                        {error && <AlertCircle className="w-4 h-4 text-red-500" />}
-                        <p className={`text-sm ${error ? 'text-red-600 dark:text-red-400' : 'text-gray-500 dark:text-gray-400'}`}>
-                            {error || helperText}
+                        {error !== undefined && <AlertCircle className="w-4 h-4 text-red-500" />}
+                        <p className={`text-sm ${error !== undefined ? 'text-red-600 dark:text-red-400' : 'text-gray-500 dark:text-gray-400'}`}>
+                            {error ?? helperText}
                         </p>
                     </motion.div>
                 )}

@@ -311,8 +311,6 @@ export interface ValidationRule {
 }
 
 // Common validation rules
-// @ts-ignore
-// @ts-ignore
 export const commonValidationRules = {
     required: (fieldName: string = 'This field'): ValidationRule => ({
         validator: (value) => validateRequired(value, fieldName),

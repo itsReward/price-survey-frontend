@@ -15,8 +15,11 @@ class GeocodingService {
     private readonly googleMapsApiKey: string | undefined
 
     constructor() {
-        // Use proper environment variable access for Vite
-        this.googleMapsApiKey = import.meta.env?.VITE_GOOGLE_MAPS_API_KEY as string | undefined
+        // Proper environment variable access for Vite
+        this.googleMapsApiKey =
+            typeof import.meta.env !== 'undefined'
+                ? (import.meta.env?.VITE_GOOGLE_MAPS_API_KEY as string | undefined)
+                : undefined
     }
 
     // Primary method using Google Maps API (most accurate)

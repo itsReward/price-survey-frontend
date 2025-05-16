@@ -228,7 +228,9 @@ export const getInitials = (name: string): string => {
 // Format email (hide part of the email for privacy)
 export const formatEmailForDisplay = (email: string): string => {
     const [name, domain] = email.split('@')
+    // @ts-ignore
     if (name.length <= 3) return email
+    // @ts-ignore
     return `${name.substring(0, 2)}***@${domain}`
 }
 

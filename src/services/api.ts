@@ -1,9 +1,24 @@
-import axios, { AxiosInstance, AxiosResponse, AxiosError } from 'axios'
+import axios, { AxiosInstance, AxiosResponse } from 'axios'
 import toast from 'react-hot-toast'
+
+
+
+// Proper environment variable access for Vite
+const getEnvVar = (key: string): string | undefined => {
+    if (typeof import.meta.env !== 'undefined') {
+        return import.meta.env[key] as string | undefined
+    }
+    return undefined
+}
+
+// Use the helper to get environment variables
+const apiBaseUrl = getEnvVar('VITE_API_URL') || ''
+
+export { apiBaseUrl }
 
 // Create axios instance with default config
 const api: AxiosInstance = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || '',
+    baseURL: apiBaseUrl,
     timeout: 10000,
     headers: {
         'Content-Type': 'application/json',
@@ -24,18 +39,19 @@ api.interceptors.request.use(
     }
 )
 
-// Response interceptor for error handling
+
+// For error handling, type the error properly:
 api.interceptors.response.use(
     (response) => response,
-    (error: AxiosError) => {
-        if (error.response?.status === 401) {
+    (error: any) => {
+        if (error?.response?.status === 401) {
             // Unauthorized - clear token and redirect to login
             localStorage.removeItem('token')
             window.location.href = '/login'
             toast.error('Session expired. Please login again.')
-        } else if (error.response?.status === 403) {
+        } else if (error?.response?.status === 403) {
             toast.error('Access denied. You do not have permission.')
-        } else if (error.response?.status >= 500) {
+        } else if (error?.response?.status >= 500) {
             toast.error('Server error. Please try again later.')
         } else if (error.message === 'Network Error') {
             toast.error('Network error. Please check your connection.')
@@ -65,15 +81,16 @@ class ApiService {
             const response: AxiosResponse<T> = await api.post(url, data, config)
             console.log('API Service - POST response:', response)
             return response.data
-        } catch (error) {
+        } catch (error: any) {
             console.error(`POST ${url} failed:`, error)
             // Log the request that was actually sent
-            if (error.request) {
+            if (error?.request) {
                 console.error('Request that was sent:', error.request._data)
             }
             throw error
         }
     }
+
     async put<T>(url: string, data = {}, config = {}): Promise<T> {
         try {
             const response: AxiosResponse<T> = await api.put(url, data, config)
@@ -185,7 +202,7 @@ class ApiService {
 
         try {
             // Check if token is expired
-            const payload = JSON.parse(atob(token.split('.')[1]))
+            const payload = JSON.parse(atob(token.split('.')[1]!))
             return payload.exp * 1000 > Date.now()
         } catch {
             return false
