@@ -12,7 +12,7 @@ const getEnvVar = (key: string): string | undefined => {
 }
 
 // Use the helper to get environment variables
-const apiBaseUrl = getEnvVar('VITE_API_URL') || ''
+const apiBaseUrl = getEnvVar('VITE_API_URL') || 'https://price-survey-app.onrender.com'
 
 export { apiBaseUrl }
 
