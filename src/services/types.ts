@@ -246,11 +246,9 @@ export const isPaginatedResponse = <T>(response: any): response is PaginatedResp
 export type ApiEndpointResponse<T> = Promise<ApiResponse<T>>
 export type PaginatedApiResponse<T> = Promise<PaginatedResponse<T>>
 
-// Re-export commonly used types
-export type {
-    User,
-    Store,
-    Product,
-    PriceEntry,
-    DashboardData,
-} from './priceEntry'
+// Re-export commonly used types from their respective files
+export type { User, AssignedStore } from './auth'
+export type { Store } from './store'
+export type { Product } from './product'
+export type { PriceEntry } from './priceEntry'
+export type { DashboardData } from './dashboard'

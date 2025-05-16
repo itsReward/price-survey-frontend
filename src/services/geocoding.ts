@@ -15,7 +15,8 @@ class GeocodingService {
     private readonly googleMapsApiKey: string | undefined
 
     constructor() {
-        this.googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+        // Use proper environment variable access for Vite
+        this.googleMapsApiKey = import.meta.env?.VITE_GOOGLE_MAPS_API_KEY as string | undefined
     }
 
     // Primary method using Google Maps API (most accurate)
@@ -111,7 +112,8 @@ class GeocodingService {
         try {
             return await this.geocodeWithNominatim(address, city, region, country)
         } catch (error) {
-            throw new Error(`All geocoding methods failed: ${error.message}`)
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+            throw new Error(`All geocoding methods failed: ${errorMessage}`)
         }
     }
 

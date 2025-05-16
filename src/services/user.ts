@@ -1,5 +1,5 @@
 import { apiService } from './api'
-import { User, UserRequest, UpdateUserRequest, UserStatusRequest, AssignStoresRequest } from '@/types/auth'
+import { User, UserRequest, UpdateUserRequest } from '@/types/auth'
 
 class UserService {
     async getUsers(): Promise<User[]> {
