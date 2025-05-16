@@ -13,7 +13,7 @@ export const APP_CONFIG = {
 // API configuration
 export const API_CONFIG = {
     baseURL: typeof import.meta.env !== 'undefined'
-        ? (import.meta.env?.VITE_API_URL as string || 'http://localhost:8080/api')
+        ? (import.meta.env?.["VITE_API_URL"] as string || 'http://localhost:8080/api')
         : 'http://localhost:8080/api',
     timeout: 30000, // 30 seconds
     retryAttempts: 3,

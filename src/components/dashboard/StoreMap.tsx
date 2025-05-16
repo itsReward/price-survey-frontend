@@ -230,7 +230,7 @@ const GoogleStoreMap: React.FC<StoreMapProps> = ({
 
             const marker = new google.maps.Marker({
                 position: { lat: store.latitude, lng: store.longitude },
-                map: mapRef.current,
+                map: mapRef.current!,
                 title: store.name,
                 icon: svgIcon,
                 zIndex: 1,
@@ -251,7 +251,7 @@ const GoogleStoreMap: React.FC<StoreMapProps> = ({
                         </div>
                     `
                     infoWindowRef.current.setContent(content)
-                    infoWindowRef.current.open(mapRef.current, marker)
+                    infoWindowRef.current.open(mapRef.current!, marker)
                 }
             })
 
@@ -265,8 +265,8 @@ const GoogleStoreMap: React.FC<StoreMapProps> = ({
 
             // Set minimum zoom level
             const listener = google.maps.event.addListener(mapRef.current, 'idle', () => {
-                if (mapRef.current!.getZoom()! > 15) {
-                    mapRef.current!.setZoom(15)
+                if (mapRef.current && mapRef.current.getZoom()! > 15) {
+                    mapRef.current.setZoom(15)
                 }
                 google.maps.event.removeListener(listener)
             })

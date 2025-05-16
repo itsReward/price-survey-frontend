@@ -11,7 +11,7 @@ import Card, { CardContent, CardHeader } from '@/components/ui/Card'
 import Input from '@/components/ui/Input'
 import toast from 'react-hot-toast'
 
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || ''
+const GOOGLE_CLIENT_ID = import.meta.env['VITE_GOOGLE_CLIENT_ID'] as string || ''
 
 const Register: React.FC = () => {
     const [formData, setFormData] = useState({

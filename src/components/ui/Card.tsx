@@ -22,7 +22,7 @@ const Card: React.FC<CardProps> = ({
                 hover && "transition-all duration-200 hover:shadow-xl hover:-translate-y-1 cursor-pointer",
                 className
             )}
-            whileHover={hover ? { scale: 1.02, y: -4 } : undefined}
+            whileHover={hover ? { scale: 1.02, y: -4 } : {}}
             transition={{ duration: 0.2 }}
             onClick={onClick}
         >

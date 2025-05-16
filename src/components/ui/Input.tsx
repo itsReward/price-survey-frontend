@@ -94,7 +94,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                             props.onBlur?.(e)
                         }}
                         disabled={disabled}
-                        {...props}
+                        {...(props as any)}  // Cast to any to avoid style conflict
                         whileFocus={{ scale: 1.01 }}
                         transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                     />
@@ -222,7 +222,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
                             props.onBlur?.(e)
                         }}
                         disabled={disabled}
-                        {...props}
+                        {...(props as any)}  // Cast to any to avoid style conflict
                         whileFocus={{ scale: 1.01 }}
                         transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                     />

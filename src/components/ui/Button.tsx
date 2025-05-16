@@ -1,6 +1,7 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 import { cn } from '@/utils/cn'
+import { MotionStyle } from 'framer-motion'
 
 interface ButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'style'> {
     variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive'
@@ -9,7 +10,7 @@ interface ButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>
     leftIcon?: React.ReactNode
     rightIcon?: React.ReactNode
     children: React.ReactNode
-    style?: React.CSSProperties
+    style?: MotionStyle
 }
 
 const Button: React.FC<ButtonProps> = ({

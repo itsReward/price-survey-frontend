@@ -1,5 +1,5 @@
 import { apiService } from './api'
-import Store, { StoreRequest, UpdateStoreRequest } from '@/types/store'
+import { Store, StoreRequest, UpdateStoreRequest } from '@/types/store'
 
 class StoreService {
     async getStores(): Promise<Store[]> {
