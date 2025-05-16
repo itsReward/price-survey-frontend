@@ -4,20 +4,18 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
     Plus,
     Search,
-    Filter,
     Edit,
     Trash2,
     Store as StoreIcon,
     MapPin,
     Eye,
     EyeOff,
-    Map,
     List,
     Grid
 } from 'lucide-react'
 import FadeIn from '@/components/animations/FadeIn'
 import Button from '@/components/ui/Button'
-import Card, { CardContent, CardHeader } from '@/components/ui/Card'
+import Card, { CardContent } from '@/components/ui/Card'
 import Skeleton from '@/components/ui/Skeleton'
 import StoreForm from '@/components/forms/StoreForm'
 import { storeService } from '@/services/store'

@@ -9,14 +9,13 @@ import {
     Shield,
     Clock,
     CheckCircle,
-    XCircle,
-    Plus
+    XCircle
 } from 'lucide-react'
 import FadeIn from '@/components/animations/FadeIn'
 import Card, { CardContent, CardHeader } from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import Skeleton from '@/components/ui/Skeleton'
-import Modal, { ConfirmDialog, AlertDialog } from '@/components/ui/Modal'
+import { ConfirmDialog } from '@/components/ui/Modal'
 import StoreAssignmentModal from '@/components/admin/StoreAssignmentModal'
 import { userService } from '@/services/user'
 import { User } from '@/types/auth'

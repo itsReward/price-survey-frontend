@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ArrowRight, BarChart3, Store, Package, TrendingUp, Users, Shield, Zap } from 'lucide-react'
+import { ArrowRight, BarChart3, Store, Package, TrendingUp, Users, Shield } from 'lucide-react'
 import TypewriterText from '@/components/animations/TypewriterText'
 import FadeIn from '@/components/animations/FadeIn'
 import Button from '@/components/ui/Button'
@@ -11,14 +11,6 @@ import { useAuth } from '@/context/AuthContext'
 const Home: React.FC = () => {
     const { isAuthenticated} = useAuth()
     const [showGreeting, setShowGreeting] = useState(false)
-
-    const greetings = [
-        "Welcome to Price Survey",
-        "Track prices with ease",
-        "Make informed decisions",
-        "Compare across stores"
-    ]
-
     const features = [
         {
             icon: BarChart3,

@@ -4,13 +4,11 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
     Plus,
     Search,
-    Filter,
     Edit,
     Trash2,
     Package,
     Tag,
     Beaker,
-    Info,
     Eye,
     EyeOff
 } from 'lucide-react'

@@ -1,12 +1,11 @@
 import React, { useState } from 'react'
 import { useQuery } from 'react-query'
 import { motion } from 'framer-motion'
-import { BarChart3, Package, Store, Users, DollarSign } from 'lucide-react'
+import { BarChart3, Package, Store, DollarSign } from 'lucide-react'
 import FadeIn from '@/components/animations/FadeIn'
 import LoadingDots from '@/components/animations/LoadingDots'
 import Card, { CardContent, CardHeader } from '@/components/ui/Card'
-import Button from '@/components/ui/Button'
-import Skeleton, { SkeletonCard } from '@/components/ui/Skeleton'
+import { SkeletonCard } from '@/components/ui/Skeleton'
 import StoreMap from '@/components/dashboard/StoreMap'
 import RecentEntries from '@/components/dashboard/RecentEntries'
 import UserActivity from '@/components/dashboard/UserActivity'
@@ -17,8 +16,6 @@ import { useAuth } from '@/context/AuthContext'
 const Dashboard: React.FC = () => {
     const { user } = useAuth()
     const [filters] = useState({})
-    const [showMapFullscreen, setShowMapFullscreen] = useState(false)
-
     const {
         data: dashboardData,
         isLoading,

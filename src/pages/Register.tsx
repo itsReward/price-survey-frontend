@@ -218,7 +218,7 @@ const Register: React.FC = () => {
                                     onChange={handleInputChange}
                                     placeholder="Email address"
                                     leftIcon={<Mail className="w-5 h-5" />}
-                                    error={errors.email}
+                                    error={errors['email']}
                                     required
                                 />
 
@@ -230,7 +230,7 @@ const Register: React.FC = () => {
                                     onChange={handleInputChange}
                                     placeholder="Password"
                                     leftIcon={<Lock className="w-5 h-5" />}
-                                    error={errors.password}
+                                    error={errors['password']}
                                     isPassword
                                     showPasswordToggle
                                     required
@@ -244,7 +244,7 @@ const Register: React.FC = () => {
                                     onChange={handleInputChange}
                                     placeholder="Confirm password"
                                     leftIcon={<Lock className="w-5 h-5" />}
-                                    error={errors.confirmPassword}
+                                    error={errors['confirmPassword']}
                                     isPassword
                                     showPasswordToggle
                                     required

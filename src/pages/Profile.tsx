@@ -74,15 +74,15 @@ const Profile: React.FC = () => {
         const newErrors: {[key: string]: string} = {}
 
         if (!profileData.firstName.trim()) {
-            newErrors.firstName = 'First name is required'
+            newErrors['firstName'] = 'First name is required'
         }
         if (!profileData.lastName.trim()) {
-            newErrors.lastName = 'Last name is required'
+            newErrors['lastName'] = 'Last name is required'
         }
         if (!profileData.email.trim()) {
-            newErrors.email = 'Email is required'
+            newErrors['email'] = 'Email is required'
         } else if (!/\S+@\S+\.\S+/.test(profileData.email)) {
-            newErrors.email = 'Invalid email format'
+            newErrors['email'] = 'Invalid email format'
         }
 
         setErrors(newErrors)
@@ -93,15 +93,15 @@ const Profile: React.FC = () => {
         const newErrors: {[key: string]: string} = {}
 
         if (!passwordData.currentPassword) {
-            newErrors.currentPassword = 'Current password is required'
+            newErrors['currentPassword'] = 'Current password is required'
         }
         if (!passwordData.newPassword) {
-            newErrors.newPassword = 'New password is required'
+            newErrors['newPassword'] = 'New password is required'
         } else if (passwordData.newPassword.length < 6) {
-            newErrors.newPassword = 'Password must be at least 6 characters'
+            newErrors['newPassword'] = 'Password must be at least 6 characters'
         }
         if (passwordData.newPassword !== passwordData.confirmPassword) {
-            newErrors.confirmPassword = 'Passwords do not match'
+            newErrors['confirmPassword'] = 'Passwords do not match'
         }
 
         setErrors(newErrors)
@@ -247,7 +247,7 @@ const Profile: React.FC = () => {
                                         name="firstName"
                                         value={profileData.firstName}
                                         onChange={handleProfileChange}
-                                        error={errors.firstName}
+                                        error={errors['firstName']}
                                         disabled={!isEditing}
                                         leftIcon={<User className="w-5 h-5" />}
                                     />
@@ -257,7 +257,7 @@ const Profile: React.FC = () => {
                                         name="lastName"
                                         value={profileData.lastName}
                                         onChange={handleProfileChange}
-                                        error={errors.lastName}
+                                        error={errors['lastName']}
                                         disabled={!isEditing}
                                         leftIcon={<User className="w-5 h-5" />}
                                     />
@@ -268,7 +268,7 @@ const Profile: React.FC = () => {
                                         type="email"
                                         value={profileData.email}
                                         onChange={handleProfileChange}
-                                        error={errors.email}
+                                        error={errors['email']}
                                         disabled={true} // Email is not editable
                                         leftIcon={<Mail className="w-5 h-5" />}
                                         helperText="Email cannot be changed"
@@ -327,7 +327,7 @@ const Profile: React.FC = () => {
                                             type="password"
                                             value={passwordData.currentPassword}
                                             onChange={handlePasswordChange}
-                                            error={errors.currentPassword}
+                                            error={errors['currentPassword']}
                                             leftIcon={<Key className="w-5 h-5" />}
                                             isPassword
                                         />
@@ -338,7 +338,7 @@ const Profile: React.FC = () => {
                                             type="password"
                                             value={passwordData.newPassword}
                                             onChange={handlePasswordChange}
-                                            error={errors.newPassword}
+                                            error={errors['newPassword']}
                                             leftIcon={<Key className="w-5 h-5" />}
                                             isPassword
                                         />
@@ -349,7 +349,7 @@ const Profile: React.FC = () => {
                                             type="password"
                                             value={passwordData.confirmPassword}
                                             onChange={handlePasswordChange}
-                                            error={errors.confirmPassword}
+                                            error={errors['confirmPassword']}
                                             leftIcon={<Key className="w-5 h-5" />}
                                             isPassword
                                         />
