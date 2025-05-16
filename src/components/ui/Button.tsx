@@ -1,30 +1,27 @@
-import React from 'react'
-import { motion } from 'framer-motion'
+import React, { forwardRef } from 'react'
+import { motion, HTMLMotionProps } from 'framer-motion'
 import { cn } from '@/utils/cn'
-import { MotionStyle } from 'framer-motion'
 
-interface ButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'style'> {
+interface ButtonProps extends HTMLMotionProps<"button"> {
     variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive'
     size?: 'sm' | 'md' | 'lg'
     isLoading?: boolean
     leftIcon?: React.ReactNode
     rightIcon?: React.ReactNode
     children: React.ReactNode
-    style?: MotionStyle
 }
 
-const Button: React.FC<ButtonProps> = ({
-                                           variant = 'primary',
-                                           size = 'md',
-                                           isLoading = false,
-                                           leftIcon,
-                                           rightIcon,
-                                           children,
-                                           className,
-                                           disabled,
-                                           style,
-                                           ...props
-                                       }) => {
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
+                                                               variant = 'primary',
+                                                               size = 'md',
+                                                               isLoading = false,
+                                                               leftIcon,
+                                                               rightIcon,
+                                                               children,
+                                                               className,
+                                                               disabled,
+                                                               ...props
+                                                           }, ref) => {
     const baseClasses = "relative overflow-hidden rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
 
     const variants = {
@@ -43,6 +40,7 @@ const Button: React.FC<ButtonProps> = ({
 
     return (
         <motion.button
+            ref={ref}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             className={cn(
@@ -52,7 +50,6 @@ const Button: React.FC<ButtonProps> = ({
                 className
             )}
             disabled={disabled || isLoading}
-            {...(style !== undefined && { style })}
             {...props}
         >
             <span className="flex items-center justify-center space-x-2">
@@ -85,6 +82,8 @@ const Button: React.FC<ButtonProps> = ({
             </span>
         </motion.button>
     )
-}
+})
+
+Button.displayName = 'Button'
 
 export default Button

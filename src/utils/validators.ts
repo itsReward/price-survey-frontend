@@ -265,11 +265,11 @@ export const validateCreditCard = (cardNumber: string): {
         isEven = !isEven
     }
 
-    // @ts-ignore
-    return {
-        isValid: sum % 10 === 0,
-        error: sum % 10 !== 0 ? 'Invalid card number' : undefined
+    if (sum % 10 !== 0) {
+        return { isValid: false, error: 'Invalid card number' }
     }
+
+    return { isValid: true }
 }
 
 // Form validation helper
@@ -317,10 +317,12 @@ export const commonValidationRules = {
     }),
 
     email: (): ValidationRule => ({
-        validator: (value) => ({
-            isValid: validateEmail(value),
-            error: validateEmail(value) ? undefined : 'Please enter a valid email address'
-        }),
+        validator: (value) => {
+            if (validateEmail(value)) {
+                return { isValid: true }
+            }
+            return { isValid: false, error: 'Please enter a valid email address' }
+        },
     }),
 
     minLength: (min: number, fieldName: string = 'This field'): ValidationRule => ({
@@ -340,17 +342,21 @@ export const commonValidationRules = {
     }),
 
     phoneNumber: (): ValidationRule => ({
-        validator: (value) => ({
-            isValid: validatePhoneNumber(value),
-            error: validatePhoneNumber(value) ? undefined : 'Please enter a valid phone number'
-        }),
+        validator: (value) => {
+            if (validatePhoneNumber(value)) {
+                return { isValid: true }
+            }
+            return { isValid: false, error: 'Please enter a valid phone number' }
+        },
     }),
 
     url: (): ValidationRule => ({
-        validator: (value) => ({
-            isValid: validateURL(value),
-            error: validateURL(value) ? undefined : 'Please enter a valid URL'
-        }),
+        validator: (value) => {
+            if (validateURL(value)) {
+                return { isValid: true }
+            }
+            return { isValid: false, error: 'Please enter a valid URL' }
+        },
     }),
 }
 

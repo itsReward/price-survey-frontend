@@ -313,17 +313,6 @@ const PriceEntryForm: React.FC<PriceEntryFormProps> = ({
                                 </div>
                             </div>
 
-                            {/* Debug Info (remove in production) */}
-                            <div className="bg-gray-100 dark:bg-gray-700 p-3 rounded text-sm">
-                                <p><strong>Debug Info:</strong></p>
-                                <p>Store ID: {formData.storeId} (type: {typeof formData.storeId})</p>
-                                <p>Product ID: {formData.productId} (type: {typeof formData.productId})</p>
-                                <p>Price: {formData.price}</p>
-                                <p>Quantity: {formData.quantity}</p>
-                                <p>Stores loaded: {stores?.length || 0}</p>
-                                <p>Products loaded: {products?.length || 0}</p>
-                            </div>
-
                             {/* Buttons */}
                             <div className="flex space-x-3 pt-4">
                                 <Button
