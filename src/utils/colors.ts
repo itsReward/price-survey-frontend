@@ -1,11 +1,101 @@
-const { r, g, b } = rgb
+// Color utility functions for the application
 
-const getRGB = (value: number) => {
-    const v = value / 255
-    return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4)
+// Type definitions
+export interface RGB {
+    r: number
+    g: number
+    b: number
 }
 
-return 0.2126 * getRGB(r) + 0.7152 * getRGB(g) + 0.0722 * getRGB(b)
+export interface HSL {
+    h: number
+    s: number
+    l: number
+}
+
+export interface ColorPalette {
+    [key: number]: string
+}
+
+// Semantic color constants
+export const SEMANTIC_COLORS = {
+    primary: '#10b981',
+    secondary: '#6b7280',
+    success: '#10b981',
+    warning: '#f59e0b',
+    error: '#ef4444',
+    info: '#3b82f6',
+}
+
+// Convert hex to RGB
+export const hexToRgb = (hex: string): RGB | null => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : null
+}
+
+// Convert RGB to hex
+export const rgbToHex = (r: number, g: number, b: number): string => {
+    return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)
+}
+
+// Add opacity to a color
+export const withOpacity = (color: string, opacity: number): string => {
+    const rgb = hexToRgb(color)
+    if (!rgb) return color
+    return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${opacity})`
+}
+
+// Lighten a color
+export const lighten = (color: string, amount: number): string => {
+    const rgb = hexToRgb(color)
+    if (!rgb) return color
+
+    const r = Math.min(255, Math.floor(rgb.r + (255 - rgb.r) * amount))
+    const g = Math.min(255, Math.floor(rgb.g + (255 - rgb.g) * amount))
+    const b = Math.min(255, Math.floor(rgb.b + (255 - rgb.b) * amount))
+
+    return rgbToHex(r, g, b)
+}
+
+// Darken a color
+export const darken = (color: string, amount: number): string => {
+    const rgb = hexToRgb(color)
+    if (!rgb) return color
+
+    const r = Math.max(0, Math.floor(rgb.r * (1 - amount)))
+    const g = Math.max(0, Math.floor(rgb.g * (1 - amount)))
+    const b = Math.max(0, Math.floor(rgb.b * (1 - amount)))
+
+    return rgbToHex(r, g, b)
+}
+
+// Get complementary color
+export const getComplementaryColor = (color: string): string => {
+    const rgb = hexToRgb(color)
+    if (!rgb) return color
+
+    const r = 255 - rgb.r
+    const g = 255 - rgb.g
+    const b = 255 - rgb.b
+
+    return rgbToHex(r, g, b)
+}
+
+// Get luminance of a color (for accessibility calculations)
+export const getLuminance = (color: string): number => {
+    const rgb = hexToRgb(color)
+    if (!rgb) return 0
+
+    const getRGB = (value: number) => {
+        const v = value / 255
+        return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4)
+    }
+
+    return 0.2126 * getRGB(rgb.r) + 0.7152 * getRGB(rgb.g) + 0.0722 * getRGB(rgb.b)
 }
 
 // Get contrast ratio between two colors
@@ -24,7 +114,7 @@ export const getTextColor = (backgroundColor: string): string => {
 }
 
 // Generate color palette from a base color
-export const generatePalette = (baseColor: string): Record<number, string> => {
+export const generatePalette = (baseColor: string): ColorPalette => {
     return {
         50: lighten(baseColor, 0.95),
         100: lighten(baseColor, 0.9),
