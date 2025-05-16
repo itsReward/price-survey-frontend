@@ -13,7 +13,6 @@ import UserActivity from '@/components/dashboard/UserActivity'
 import { LineChart, BarChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { dashboardService } from '@/services/dashboard'
 import { useAuth } from '@/context/AuthContext'
-import StoreMapDebugger from '@/components/StoreMapDebugger'
 
 const Dashboard: React.FC = () => {
     const { user } = useAuth()
@@ -120,11 +119,11 @@ const Dashboard: React.FC = () => {
                                                     <p className="text-2xl font-bold text-gray-900 dark:text-white">
                                                         {stat.prefix || ''}{stat.value.toLocaleString()}
                                                     </p>
-                                                    <p className={`text-sm ${
+                                                    {/*<p className={`text-sm ${
                                                         stat.change.startsWith('+') ? 'text-green-600' : 'text-red-600'
                                                     }`}>
                                                         {stat.change} from last month
-                                                    </p>
+                                                    </p>*/}
                                                 </div>
                                             </div>
                                         </CardContent>
@@ -134,8 +133,6 @@ const Dashboard: React.FC = () => {
                         </FadeIn>
                     ))}
                 </div>
-
-                <StoreMapDebugger />
 
                 {/* Store Map */}
                 <FadeIn delay={0.2}>

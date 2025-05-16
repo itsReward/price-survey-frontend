@@ -212,7 +212,7 @@ const Home: React.FC = () => {
                             Ready to get started?
                         </h2>
                         <p className="text-lg text-emerald-100 mb-8 max-w-2xl mx-auto">
-                            Join thousands of businesses using Price Survey to make better pricing decisions.
+                            Join thousands of businesses using Pricely to make better pricing decisions.
                         </p>
                         {!isAuthenticated && (
                             <Link to="/login">

@@ -224,20 +224,6 @@ const PriceEntries: React.FC = () => {
                     </Card>
                 </FadeIn>
 
-                {/* Debug Info */}
-                <FadeIn delay={0.15}>
-                    <Card className="mb-6 bg-blue-50 dark:bg-blue-900/20">
-                        <CardContent>
-                            <p className="text-sm text-blue-700 dark:text-blue-300">
-                                <strong>Debug Info:</strong>
-                                {isLoading ? ' Loading...' : ` Loaded ${priceEntries?.length || 0} entries`}
-                                {createMutation.isLoading && ' | Creating...'}
-                                {updateMutation.isLoading && ' | Updating...'}
-                                {deleteMutation.isLoading && ' | Deleting...'}
-                            </p>
-                        </CardContent>
-                    </Card>
-                </FadeIn>
 
                 {/* Price Entries Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

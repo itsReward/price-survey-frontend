@@ -21,13 +21,80 @@ interface MapStore {
     isActive: boolean
 }
 
+// Global state to track Google Maps loading
+let googleMapsPromise: Promise<void> | null = null
+let googleMapsLoaded = false
+
+const loadGoogleMaps = async (apiKey: string): Promise<void> => {
+    if (googleMapsLoaded) {
+        return Promise.resolve()
+    }
+
+    if (googleMapsPromise) {
+        return googleMapsPromise
+    }
+
+    googleMapsPromise = new Promise((resolve, reject) => {
+        // Check if Google Maps is already loaded
+        if (window.google?.maps) {
+            googleMapsLoaded = true
+            resolve()
+            return
+        }
+
+        // Check if the script is already added
+        const existingScript = document.querySelector(
+            `script[src*="maps.googleapis.com/maps/api/js"]`
+        )
+        if (existingScript) {
+            // Script exists, just wait for it to load
+            const checkGoogle = () => {
+                if (window.google?.maps) {
+                    googleMapsLoaded = true
+                    resolve()
+                } else {
+                    setTimeout(checkGoogle, 100)
+                }
+            }
+            checkGoogle()
+            return
+        }
+
+        // Create a unique callback name
+        const callbackName = `initGoogleMap_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+
+        // Add the callback to window
+        window[callbackName] = () => {
+            googleMapsLoaded = true
+            delete window[callbackName] // Clean up
+            resolve()
+        }
+
+        // Create and add the script
+        const script = document.createElement('script')
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=${callbackName}&loading=async`
+        script.async = true
+        script.defer = true
+        script.onerror = () => {
+            delete window[callbackName]
+            googleMapsPromise = null
+            reject(new Error('Failed to load Google Maps'))
+        }
+
+        document.head.appendChild(script)
+    })
+
+    return googleMapsPromise
+}
+
 const GoogleStoreMap: React.FC<StoreMapProps> = ({
                                                      height = 'h-96',
                                                      showControls = true
                                                  }) => {
     const [selectedStore, setSelectedStore] = useState<MapStore | null>(null)
     const [isFullscreen, setIsFullscreen] = useState(false)
-    const [googleMapsLoaded, setGoogleMapsLoaded] = useState(false)
+    const [mapsReady, setMapsReady] = useState(googleMapsLoaded)
+    const [mapError, setMapError] = useState<string | null>(null)
     const mapContainerRef = useRef<HTMLDivElement>(null)
     const mapRef = useRef<google.maps.Map | null>(null)
     const markersRef = useRef<google.maps.Marker[]>([])
@@ -81,34 +148,29 @@ const GoogleStoreMap: React.FC<StoreMapProps> = ({
 
     // Load Google Maps API
     useEffect(() => {
-        const loadGoogleMaps = async () => {
-            if (!googleMapsLoaded && typeof window !== 'undefined') {
-                const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+        const initGoogleMaps = async () => {
+            const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
 
-                if (!GOOGLE_MAPS_API_KEY) {
-                    console.error('Google Maps API key not configured')
-                    return
-                }
+            if (!GOOGLE_MAPS_API_KEY) {
+                setMapError('Google Maps API key not configured')
+                return
+            }
 
-                // @ts-ignore
-                window.initGoogleMap = () => {
-                    setGoogleMapsLoaded(true)
-                }
-
-                const script = document.createElement('script')
-                script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&callback=initGoogleMap`
-                script.async = true
-                script.defer = true
-                document.head.appendChild(script)
+            try {
+                await loadGoogleMaps(GOOGLE_MAPS_API_KEY)
+                setMapsReady(true)
+            } catch (error) {
+                console.error('Failed to load Google Maps:', error)
+                setMapError('Failed to load Google Maps')
             }
         }
 
-        loadGoogleMaps()
-    }, [googleMapsLoaded])
+        initGoogleMaps()
+    }, [])
 
     // Initialize map when Google Maps is loaded
     useEffect(() => {
-        if (!googleMapsLoaded || !mapContainerRef.current || mapRef.current) return
+        if (!mapsReady || !mapContainerRef.current || mapRef.current) return
 
         mapRef.current = new google.maps.Map(mapContainerRef.current, {
             zoom: 10,
@@ -117,11 +179,11 @@ const GoogleStoreMap: React.FC<StoreMapProps> = ({
         })
 
         infoWindowRef.current = new google.maps.InfoWindow()
-    }, [googleMapsLoaded])
+    }, [mapsReady])
 
     // Update markers when stores change
     useEffect(() => {
-        if (!googleMapsLoaded || !mapRef.current || !stores) return
+        if (!mapsReady || !mapRef.current || !stores) return
 
         // Clear existing markers
         markersRef.current.forEach(marker => marker.setMap(null))
@@ -189,9 +251,6 @@ const GoogleStoreMap: React.FC<StoreMapProps> = ({
                             <p style="margin: 4px 0; font-size: 12px; font-weight: bold; color: ${storeIsActive ? '#10b981' : '#ef4444'};">
                                 ${storeIsActive ? 'Active' : 'Inactive'}
                             </p>
-                            <p style="margin: 4px 0; font-size: 11px; color: #aaa;">
-                                Debug: isActive = ${JSON.stringify(store.isActive)} (${typeof store.isActive})
-                            </p>
                         </div>
                     `
                     infoWindowRef.current.setContent(content)
@@ -215,7 +274,7 @@ const GoogleStoreMap: React.FC<StoreMapProps> = ({
                 google.maps.event.removeListener(listener)
             })
         }
-    }, [stores, googleMapsLoaded])
+    }, [stores, mapsReady])
 
     // Handle fullscreen
     useEffect(() => {
@@ -226,14 +285,14 @@ const GoogleStoreMap: React.FC<StoreMapProps> = ({
         }
     }, [isFullscreen])
 
-    if (error) {
+    if (error || mapError) {
         return (
             <Card>
                 <CardContent>
                     <div className="text-center py-8">
                         <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                         <p className="text-red-500">Error loading store locations</p>
-                        <p className="text-sm text-gray-500 mt-2">{error.toString()}</p>
+                        <p className="text-sm text-gray-500 mt-2">{error?.toString() || mapError}</p>
                     </div>
                 </CardContent>
             </Card>
@@ -267,12 +326,12 @@ const GoogleStoreMap: React.FC<StoreMapProps> = ({
                 </CardHeader>
                 <CardContent className="p-0">
                     <div className={`${isFullscreen ? 'h-[calc(100vh-8rem)]' : height} w-full relative`}>
-                        {isLoading || !googleMapsLoaded ? (
+                        {isLoading || !mapsReady ? (
                             <div className="h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800">
                                 <div className="text-center">
                                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500 mx-auto mb-4"></div>
                                     <p className="text-gray-500 dark:text-gray-400">
-                                        {!googleMapsLoaded ? 'Loading Google Maps...' : 'Loading store locations...'}
+                                        {!mapsReady ? 'Loading Google Maps...' : 'Loading store locations...'}
                                     </p>
                                 </div>
                             </div>
@@ -285,7 +344,7 @@ const GoogleStoreMap: React.FC<StoreMapProps> = ({
                         )}
 
                         {/* Legend overlay */}
-                        {googleMapsLoaded && (
+                        {mapsReady && (
                             <div className="absolute top-4 right-4 bg-white dark:bg-gray-800 rounded-lg p-3 shadow-lg z-10">
                                 <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Legend</h4>
                                 <div className="space-y-2">

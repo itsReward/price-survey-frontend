@@ -54,7 +54,7 @@ const Footer: React.FC = () => {
                                 </svg>
                             </div>
                             <span className="text-xl font-bold text-gray-900 dark:text-white">
-                Price Survey
+                Pricely
               </span>
                         </Link>
                         <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
@@ -102,12 +102,12 @@ const Footer: React.FC = () => {
                 <div className="border-t border-gray-200 dark:border-gray-800 mt-8 pt-8">
                     <div className="flex flex-col md:flex-row justify-between items-center">
                         <p className="text-gray-600 dark:text-gray-400 text-sm">
-                            © {new Date().getFullYear()} Price Survey. All rights reserved.
+                            © {new Date().getFullYear()} Pricely. All rights reserved.
                         </p>
                         <div className="flex items-center space-x-1 text-gray-600 dark:text-gray-400 text-sm mt-4 md:mt-0">
                             <span>Made with</span>
                             <Heart className="w-4 h-4 text-red-500 fill-current" />
-                            <span>by the Price Survey team</span>
+                            <span>by the Pricely team</span>
                         </div>
                     </div>
                 </div>

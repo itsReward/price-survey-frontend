@@ -57,7 +57,7 @@ const Header: React.FC = () => {
                             <BarChart3 className="w-6 h-6" />
                         </motion.div>
                         <span className="text-xl font-bold text-gray-900 dark:text-white">
-              Price Survey
+              Pricely
             </span>
                     </Link>
 
